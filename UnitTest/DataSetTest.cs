@@ -39,8 +39,18 @@ namespace KoenZomers.Tado.Api.UnitTest
         [TestMethod]
         public async Task SetTemperatureCelciusTest()
         {
+            // Get the current settings in the zone so we can set it back again
+            var zone = await session.GetSummarizedZoneState(HomeId, ZoneId);
+
+            // Test setting the zone to another temperature
             var response = await session.SetTemperatureCelsius(HomeId, ZoneId, 5.5);
             Assert.IsNotNull(response, "Failed to set the temperature of a zone");
+
+            if (zone.Setting.Temperature.Celsius.HasValue)
+            {
+                // Set the zone back to its original temperature
+                await session.SetTemperatureCelsius(HomeId, ZoneId, zone.Setting.Temperature.Celsius.Value);
+            }
         }
 
         /// <summary>
@@ -49,8 +59,18 @@ namespace KoenZomers.Tado.Api.UnitTest
         [TestMethod]
         public async Task SetTemperatureFahrenheitTest()
         {
+            // Get the current settings in the zone so we can set it back again
+            var zone = await session.GetSummarizedZoneState(HomeId, ZoneId);
+
+            // Test setting the zone to another temperature
             var response = await session.SetTemperatureFahrenheit(HomeId, ZoneId, 42);
             Assert.IsNotNull(response, "Failed to set the temperature of a zone");
+
+            if (zone.Setting.Temperature.Fahrenheit.HasValue)
+            {
+                // Set the zone back to its original temperature
+                await session.SetTemperatureFahrenheit(HomeId, ZoneId, zone.Setting.Temperature.Fahrenheit.Value);
+            }
         }
 
         /// <summary>
@@ -59,8 +79,56 @@ namespace KoenZomers.Tado.Api.UnitTest
         [TestMethod]
         public async Task SwitchHeatingOffTest()
         {
-            var response = await session.SwitchHeatingOff(HomeId, ZoneId);
-            Assert.IsNotNull(response, "Failed to switch off the heating in a zone");
+            // Get the current settings in the zone so we can set it back again
+            var zone = await session.GetSummarizedZoneState(HomeId, ZoneId);
+
+            Entities.ZoneSummary response;
+            if(zone.Setting.Power.Equals("ON", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                response = await session.SwitchHeatingOff(HomeId, ZoneId);
+            }
+            else
+            {
+                response = await session.SetTemperatureCelsius(HomeId, ZoneId, 10);
+            }
+            Assert.IsNotNull(response, "Failed to switch the heating in a zone");
+
+            // Switch the heating setting back to its initial value
+            if (zone.Setting.Power.Equals("ON", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                await session.SetTemperatureCelsius(HomeId, ZoneId, zone.Setting.Temperature.Celsius.Value);
+            }
+            else
+            {
+                await session.SwitchHeatingOff(HomeId, ZoneId);
+            }
+        }
+
+        /// <summary>
+        /// Test if the heating can be switched off
+        /// </summary>
+        [TestMethod]
+        public async Task SetEarlyStartTest()
+        {
+            // Get the current settings in the zone so we can set it back again
+            var earlyStart = await session.GetEarlyStart(HomeId, ZoneId);
+
+            // Switch the EarlyStart setting
+            var response = await session.SetEarlyStart(HomeId, ZoneId, !earlyStart.Enabled);
+            Assert.IsNotNull(response, "Failed to switch the EarlyStart setting of a zone");
+
+            // Switch the EarlyStart setting back to its initial value
+            await session.SetEarlyStart(HomeId, ZoneId, earlyStart.Enabled);
+        }
+
+        /// <summary>
+        /// Test if showing Hi works on a device
+        /// </summary>
+        [TestMethod]
+        public async Task SayHiTest()
+        {
+            var success = await session.SayHi(DeviceId);
+            Assert.IsTrue(success, "Failed to display Hi on a Tado device");
         }
     }
 }

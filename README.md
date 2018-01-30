@@ -2,6 +2,11 @@
 This library for C# will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
 ## Version History
 
+0.2 - released January 31, 2018
+
+- With big thanks to http://blog.scphillips.com/posts/2017/01/the-tado-api-v2/ added various methods that were listed there but not yet implemented. Full list of available functionalities can be found below.
+- Removed old code and some code cleanup
+
 0.1 - released January 30, 2018
 
 - Initial version
@@ -53,7 +58,7 @@ To switch off the heating in a zone:
 await session.SwitchHeatingOff(123456, 0);
 ```
 
-Check out the UnitTest project in this solution for full insight in the possibilities and working code samples.
+Check out the UnitTest project in this solution for full insight in the possibilities and working code samples. If you want to run the Unit Tests, copy the App.sample.config file to become App.config and fill in the appSettings values with the proper values valid for your scenario.
 
 ## Available via NuGet
 
@@ -67,17 +72,29 @@ Package statistics: https://www.nuget.org/packages/KoenZomers.Tado.Api
 
 With this API at its current state you can:
 
-- Authenticate to the Tado v2 API
+- Authenticate to the Tado v2 API using an username and password to get an OAuth2 token
+- Validate with each request if the access token is still valid (lifetime is 10 minutes) and if not, uses the refresh token to get a new access token (lifetime is 1 day) and if that also fails, uses the username/password to get a new context token
 - Retrieve information about the currently logged on user
 - Retrieve information about all configured zones in your house
 - Retrieve information about all registered Tado devices in your house
 - Retrieve information about all connected mobile devices to your house
 - Retrieve information about the Tado installations at your house
+- Retrieve the users with access to a house
+- Retrieve the details of a house
 - Get the state if somebody is home
+- Get the capabilities of a zone
+- Get the settings of a mobile device with access to a house
 - Get the summarized overview of zone
 - Get information about the weather around your house
+- Get the early start setting of a zone
+- Switch the early start setting of a zone to enabled or disabled
 - Set the desired temperature in a zone in Celsius and Fahrenheit
 - Switch off the heating in a zone
+- Show Hi on Tado thermostats or Tado knobs
+
+## Still missing
+
+- Setting heating schedules
 
 ## Feedback
 

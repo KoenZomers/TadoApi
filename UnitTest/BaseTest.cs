@@ -26,5 +26,15 @@ namespace KoenZomers.Tado.Api.UnitTest
         /// Id of the zone as registered with Tado
         /// </summary>
         public static int ZoneId => int.Parse(ConfigurationManager.AppSettings["TadoZoneId"]);
+
+        /// <summary>
+        /// Id of the mobile device as registered with Tado
+        /// </summary>
+        public static int MobileDeviceId => int.Parse(ConfigurationManager.AppSettings["TadoMobileDeviceId"]);
+
+        /// <summary>
+        /// Id of the Tado device
+        /// </summary>
+        public static string DeviceId => ConfigurationManager.AppSettings["TadoDeviceId"];
     }
 }

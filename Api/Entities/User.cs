@@ -3,9 +3,9 @@
 namespace KoenZomers.Tado.Api.Entities
 {
     /// <summary>
-    /// Contains information about the current user
+    /// Contains information about a user
     /// </summary>
-    public class Me
+    public class User
     {
         public partial class Welcome
         {

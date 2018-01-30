@@ -52,12 +52,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\ActivityDataPoints.cs" />
+    <Compile Include="Entities\Address.cs" />
+    <Compile Include="Entities\Capability.cs" />
     <Compile Include="Entities\Characteristics.cs" />
     <Compile Include="Entities\ConnectionState.cs" />
+    <Compile Include="Entities\ContactDetails.cs" />
     <Compile Include="Entities\DazzleMode.cs" />
+    <Compile Include="Entities\EarlyStart.cs" />
+    <Compile Include="Entities\Geolocation.cs" />
     <Compile Include="Entities\HomeState.cs" />
     <Compile Include="Entities\Device.cs" />
     <Compile Include="Entities\HeatingPower.cs" />
+    <Compile Include="Entities\House.cs" />
     <Compile Include="Entities\Humidity.cs" />
     <Compile Include="Entities\InsideTemperature.cs" />
     <Compile Include="Entities\Installation.cs" />
@@ -66,7 +72,9 @@
     <Compile Include="Entities\MobileDevice\Location.cs" />
     <Compile Include="Entities\MobileDevice\Details.cs" />
     <Compile Include="Entities\Home.cs" />
-    <Compile Include="Entities\Me.cs" />
+    <Compile Include="Entities\Temperatures.cs" />
+    <Compile Include="Entities\TemperatureSteps.cs" />
+    <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\MobileDevice\Settings.cs" />
     <Compile Include="Entities\MountingState.cs" />
     <Compile Include="Entities\OpenWindowDetection.cs" />
@@ -90,7 +98,6 @@
     <Compile Include="Entities\MobileDevice\Item.cs" />
     <Compile Include="Helpers\QueryStringBuilder.cs" />
     <Compile Include="Session.cs" />
-    <Compile Include="HttpUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

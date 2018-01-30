@@ -353,7 +353,7 @@ namespace KoenZomers.Tado.Api
             // Ensure a valid OAuth token is set on the HttpClient if possible
             await EnsureAccessToken();
 
-            // Load the content to upload
+            // Load the content to send in the body
             using (var content = new StringContent(bodyText ?? "", Encoding.UTF8, "application/json"))
             {
                 // Construct the message towards the webservice
@@ -389,6 +389,53 @@ namespace KoenZomers.Tado.Api
             }
         }
 
+        /// <summary>
+        /// Sends a message to the Tado API without looking at the response
+        /// </summary>
+        /// <param name="uri">Uri of the webservice to send the message to</param>
+        /// <param name="bodyText">Text to send to the webservice in the body</param>
+        /// <param name="httpMethod">Http Method to use to connect to the webservice</param>
+        /// <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be false to indicate failure.</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        protected virtual async Task<bool> SendMessage(string bodyText, HttpMethod httpMethod, Uri uri, HttpStatusCode? expectedHttpStatusCode = null)
+        {
+            // Ensure a valid OAuth token is set on the HttpClient if possible
+            await EnsureAccessToken();
+
+            // Load the content to send in the body
+            using (var content = new StringContent(bodyText ?? "", Encoding.UTF8, "application/json"))
+            {
+                // Construct the message towards the webservice
+                using (var request = new HttpRequestMessage(httpMethod, uri))
+                {
+                    // Check if a body to send along with the request has been provided
+                    if (!string.IsNullOrEmpty(bodyText) && httpMethod != HttpMethod.Get)
+                    {
+                        // Set the content to send along in the message body with the request
+                        request.Content = content;
+                    }
+
+                    try
+                    {
+                        // Request the response from the webservice
+                        using (var response = await httpClient.SendAsync(request))
+                        {
+                            if (!expectedHttpStatusCode.HasValue || (expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value))
+                            {
+                                return true;
+                            }
+                            return false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Request was not successful. throw an exception
+                        throw new Exceptions.RequestFailedException(uri, ex);
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -397,11 +444,11 @@ namespace KoenZomers.Tado.Api
         /// Returns information about the user currently connected through the Tado API
         /// </summary>
         /// <returns>Information about the current user</returns>
-        public async Task<Entities.Me> GetMe()
+        public async Task<Entities.User> GetMe()
         {
             EnsureAuthenticatedSession();
 
-            var response = await GetMessageReturnResponse<Entities.Me>(new Uri(TadoApiBaseUrl, "me"), HttpStatusCode.OK);
+            var response = await GetMessageReturnResponse<Entities.User>(new Uri(TadoApiBaseUrl, "me"), HttpStatusCode.OK);
             return response;
         }
 
@@ -441,6 +488,20 @@ namespace KoenZomers.Tado.Api
             EnsureAuthenticatedSession();
 
             var response = await GetMessageReturnResponse<Entities.MobileDevice.Item[]>(new Uri(TadoApiBaseUrl, $"homes/{homeId}/mobileDevices"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// Returns the settings of a mobile device connected to the home with the provided Id from the Tado API
+        /// </summary>
+        /// <param name="homeId">Id of the home to query</param>
+        /// <param name="mobileDeviceId">Id of the mobile device to query</param>
+        /// <returns>The settings of the connected mobile device</returns>
+        public async Task<Entities.MobileDevice.Settings> GetMobileDeviceSettings(int homeId, int mobileDeviceId)
+        {
+            EnsureAuthenticatedSession();
+
+            var response = await GetMessageReturnResponse<Entities.MobileDevice.Settings>(new Uri(TadoApiBaseUrl, $"homes/{homeId}/mobileDevices/{mobileDeviceId}/settings"), HttpStatusCode.OK);
             return response;
         }
 
@@ -512,6 +573,60 @@ namespace KoenZomers.Tado.Api
         }
 
         /// <summary>
+        /// Returns the home with the provided Id from the Tado API
+        /// </summary>
+        /// <param name="homeId">Id of the home to query</param>
+        /// <returns>The home details</returns>
+        public async Task<Entities.House> GetHome(int homeId)
+        {
+            EnsureAuthenticatedSession();
+
+            var response = await GetMessageReturnResponse<Entities.House>(new Uri(TadoApiBaseUrl, $"homes/{homeId}"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// Returns the users with access to the home with the provided Id from the Tado API
+        /// </summary>
+        /// <param name="homeId">Id of the home to query</param>
+        /// <returns>The users with access</returns>
+        public async Task<Entities.User[]> GetUsers(int homeId)
+        {
+            EnsureAuthenticatedSession();
+
+            var response = await GetMessageReturnResponse<Entities.User[]>(new Uri(TadoApiBaseUrl, $"homes/{homeId}/users"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// Returns the capabilities of a zone in the home with the provided Id from the Tado API
+        /// </summary>
+        /// <param name="homeId">Id of the home to query</param>
+        /// <param name="zoneId">Id of the zone to query</param>
+        /// <returns>The capabilities of the zone</returns>
+        public async Task<Entities.Capability> GetZoneCapabilities(int homeId, int zoneId)
+        {
+            EnsureAuthenticatedSession();
+
+            var response = await GetMessageReturnResponse<Entities.Capability>(new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/capabilities"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// Returns the early start of a zone in the home with the provided Id from the Tado API
+        /// </summary>
+        /// <param name="homeId">Id of the home to query</param>
+        /// <param name="zoneId">Id of the zone to query</param>
+        /// <returns>The early start setting of the zone</returns>
+        public async Task<Entities.EarlyStart> GetEarlyStart(int homeId, int zoneId)
+        {
+            EnsureAuthenticatedSession();
+
+            var response = await GetMessageReturnResponse<Entities.EarlyStart>(new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/earlyStart"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
         /// Sets the temperature in a zone in the home with the provided Id through the Tado API
         /// </summary>
         /// <param name="homeId">Id of the home to set the temperature of</param>
@@ -578,7 +693,7 @@ namespace KoenZomers.Tado.Api
         }
 
         /// <summary>
-        /// Switches the heating off in a zone in the home with the provided Id through the Tado API
+        /// Switches the heating off in a zone in the home with the provided Id through the Tado API. Use SetTemperatureCelsius or SetTemperatureFahrenheit to switch the heating on again.
         /// </summary>
         /// <param name="homeId">Id of the home to switch the heating off in</param>
         /// <param name="zoneId">Id of the zone to switch the heating off in</param>
@@ -603,6 +718,40 @@ namespace KoenZomers.Tado.Api
 
             var response = await SendMessageReturnResponse<Entities.ZoneSummary>(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/overlay"), HttpStatusCode.OK);
             return response;
+        }
+
+        /// <summary>
+        /// Sets the EarlyStart mode of a zone in the home with the provided Id through the Tado API
+        /// </summary>
+        /// <param name="homeId">Id of the home to switch the heating off in</param>
+        /// <param name="zoneId">Id of the zone to switch the heating off in</param>
+        /// <param name="enabled">True to enable EarlyStart or False to disable it</param>
+        /// <returns>The new EarlyStart mode of the zone</returns>
+        public async Task<Entities.EarlyStart> SetEarlyStart(int homeId, int zoneId, bool enabled)
+        {
+            EnsureAuthenticatedSession();
+
+            var earlyStart = new Entities.EarlyStart
+            {
+                Enabled = enabled
+            };
+            var request = JsonConvert.SerializeObject(earlyStart);
+
+            var response = await SendMessageReturnResponse<Entities.EarlyStart>(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/earlyStart"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// Shows Hi on the Tado device to identify it
+        /// </summary>
+        /// <param name="deviceId">Id / serial number of the Tado device</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SayHi(string deviceId)
+        {
+            EnsureAuthenticatedSession();
+
+            var success = await SendMessage(null, HttpMethod.Post, new Uri(TadoApiBaseUrl, $"devices/{deviceId}/identify"), HttpStatusCode.OK);
+            return success;
         }
 
         #endregion

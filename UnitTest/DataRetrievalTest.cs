@@ -107,7 +107,7 @@ namespace KoenZomers.Tado.Api.UnitTest
         /// Test if the summarized state of a zone can be retrieved
         /// </summary>
         [TestMethod]
-        public async Task GetSummarizedZoneState()
+        public async Task GetSummarizedZoneStateTest()
         {
             var response = await session.GetSummarizedZoneState(HomeId, ZoneId);
             Assert.IsNotNull(response, "Failed to retrieve information about the summarized state of the zone");
@@ -117,10 +117,65 @@ namespace KoenZomers.Tado.Api.UnitTest
         /// Test if the current weahter at the house can be retrieved
         /// </summary>
         [TestMethod]
-        public async Task GetWeather()
+        public async Task GetWeatherTest()
         {
             var response = await session.GetWeather(HomeId);
             Assert.IsNotNull(response, "Failed to retrieve information about the current weather at the house");
+        }
+
+        /// <summary>
+        /// Test if the house details can be retrieved
+        /// </summary>
+        [TestMethod]
+        public async Task GetHomeTest()
+        {
+            var response = await session.GetHome(HomeId);
+
+            Assert.IsNotNull(response, "Failed to retrieve information about the house");
+        }
+
+        /// <summary>
+        /// Test if the users with access to a house can be retrieved
+        /// </summary>
+        [TestMethod]
+        public async Task GetUsersTest()
+        {
+            var response = await session.GetUsers(HomeId);
+
+            Assert.IsNotNull(response, "Failed to retrieve information about the users with access to a house");
+        }
+
+        /// <summary>
+        /// Test if the settings of a mobile device registered to a house can be retrieved
+        /// </summary>
+        [TestMethod]
+        public async Task GetMobileDeviceSettingsTest()
+        {
+            var response = await session.GetMobileDeviceSettings(HomeId, MobileDeviceId);
+
+            Assert.IsNotNull(response, "Failed to retrieve information about the settings of a mobile device registered to a house");
+        }
+
+        /// <summary>
+        /// Test if the capabilities of a zone registered to a house can be retrieved
+        /// </summary>
+        [TestMethod]
+        public async Task GetZoneCapabilitiesTest()
+        {
+            var response = await session.GetZoneCapabilities(HomeId, ZoneId);
+
+            Assert.IsNotNull(response, "Failed to retrieve information about the capabilities of a zone");
+        }
+
+        /// <summary>
+        /// Test if the early start setting of a zone registered to a house can be retrieved
+        /// </summary>
+        [TestMethod]
+        public async Task GetEarlyStartTest()
+        {
+            var response = await session.GetEarlyStart(HomeId, ZoneId);
+
+            Assert.IsNotNull(response, "Failed to retrieve information about the early start setting of a zone");
         }
     }
 }
