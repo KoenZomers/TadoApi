@@ -10,6 +10,10 @@ This library for C# will allow you to easily communicate with the Tado API and r
 
 This API is built using the Microsoft .NET 4.6.2 framework and is fully asynchronous
 
+## Warning
+
+Tado has not officially released an API yet that developers are free to use. This API has been created by mimicking the traffic to their own web application. This means they can change their Api at any time causing this Api and your code to break without advanced notice. Be sure you understand the consequences of this before using any Tado Api in your own software.
+
 ## Usage Instructions
 
 To communicate with the Tado API, add the NuGet package to your solution and add a using reference in your code:
@@ -63,7 +67,7 @@ Package statistics: https://www.nuget.org/packages/KoenZomers.Tado.Api
 
 With this API at its current state you can:
 
-- Authenticate to the Tadi v2 API
+- Authenticate to the Tado v2 API
 - Retrieve information about the currently logged on user
 - Retrieve information about all configured zones in your house
 - Retrieve information about all registered Tado devices in your house
