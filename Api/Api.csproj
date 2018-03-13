@@ -92,6 +92,7 @@
     <Compile Include="Entities\WeatherState.cs" />
     <Compile Include="Entities\Zone.cs" />
     <Compile Include="Entities\ZoneSummary.cs" />
+    <Compile Include="Enums\DurationModes.cs" />
     <Compile Include="Exceptions\RequestFailedException.cs" />
     <Compile Include="Exceptions\SessionAuthenticationFailedException.cs" />
     <Compile Include="Exceptions\SessionNotAuthenticatedException.cs" />

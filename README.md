@@ -2,6 +2,10 @@
 This library for C# will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
 ## Version History
 
+0.2.1 - released March 13, 2018
+
+- Added option to provide duration of the heating or off to SetTemperatureCelcius, SetTemperatureFahrenheit and SwitchHeatingOff. This can be: until next manual change, until next scheduled event or for a specific duration.
+
 0.2 - released January 31, 2018
 
 - With big thanks to http://blog.scphillips.com/posts/2017/01/the-tado-api-v2/ added various methods that were listed there but not yet implemented. Full list of available functionalities can be found below.
