@@ -54,7 +54,7 @@ namespace KoenZomers.Tado.Api
         public IWebProxy ProxyConfiguration
         {
             get { return proxyConfiguration; }
-            set { proxyConfiguration = value; CreateHttpClient(); }
+            set { proxyConfiguration = value; _httpClient?.Dispose(); _httpClient = CreateHttpClient(); }
         }
 
         private NetworkCredential proxyCredential;
@@ -64,7 +64,7 @@ namespace KoenZomers.Tado.Api
         public NetworkCredential ProxyCredential
         {
             get { return proxyCredential; }
-            set { proxyCredential = value; CreateHttpClient(); }
+            set { proxyCredential = value; _httpClient?.Dispose(); _httpClient = CreateHttpClient(); }
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace KoenZomers.Tado.Api
         /// <summary>
         /// HttpClient to use for network communications towards the Tado API
         /// </summary>
-        private readonly HttpClient httpClient;
+        private HttpClient _httpClient;
 
         #endregion
 
@@ -99,7 +99,7 @@ namespace KoenZomers.Tado.Api
             Password = password;
 
             // Add a HttpClient to the session to allow for network communication
-            httpClient = CreateHttpClient();
+            _httpClient = CreateHttpClient();
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace KoenZomers.Tado.Api
         /// </summary>
         public void Dispose()
         {
-            httpClient?.Dispose();
+            _httpClient?.Dispose();
         }
 
         #endregion
@@ -143,7 +143,7 @@ namespace KoenZomers.Tado.Api
             }
 
             // Set the access token on the HttpClient
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", AuthenticatedSession.AccessToken);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", AuthenticatedSession.AccessToken);
             return;
         }
 
@@ -277,7 +277,7 @@ namespace KoenZomers.Tado.Api
                     try
                     {
                         // Request the response from the webservice
-                        var response = await httpClient.SendAsync(request);
+                        var response = await _httpClient.SendAsync(request);
                         var responseBody = await response.Content.ReadAsStringAsync();
 
                         // Verify if the request was successful (response status 200-299)
@@ -317,7 +317,7 @@ namespace KoenZomers.Tado.Api
                 try
                 {
                     // Request the response from the webservice
-                    using (var response = await httpClient.SendAsync(request))
+                    using (var response = await _httpClient.SendAsync(request))
                     {
                         if (!expectedHttpStatusCode.HasValue || (expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value))
                         {
@@ -366,7 +366,7 @@ namespace KoenZomers.Tado.Api
                     try
                     {
                         // Request the response from the webservice
-                        using (var response = await httpClient.SendAsync(request))
+                        using (var response = await _httpClient.SendAsync(request))
                         {
                             if (!expectedHttpStatusCode.HasValue || (expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value))
                             {
@@ -415,7 +415,7 @@ namespace KoenZomers.Tado.Api
                     try
                     {
                         // Request the response from the webservice
-                        using (var response = await httpClient.SendAsync(request))
+                        using (var response = await _httpClient.SendAsync(request))
                         {
                             if (!expectedHttpStatusCode.HasValue || (expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value))
                             {
