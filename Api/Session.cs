@@ -35,12 +35,12 @@ namespace KoenZomers.Tado.Api
         /// <summary>
         /// Tado API Client Id to use for the OAuth token
         /// </summary>
-        public string ClientId => "tado-web-app";
+        public string ClientId => "public-api-preview";
 
         /// <summary>
         /// Tado API Client Secret to use for the OAuth token
         /// </summary>
-        public string ClientSecret => "wZaRN7rpjn3FoNyF5IFuxg9uMzYJcvOoQ8QWiIqS3hfk6gLhVlG57j5YNoZL2Rtc";
+        public string ClientSecret => "4HJGRffVR8xb3XdEUQpjgZ1VplJi6Xgw";
 
         /// <summary>
         /// Allows setting an User Agent which will be provided to the Tado API
@@ -144,7 +144,6 @@ namespace KoenZomers.Tado.Api
 
             // Set the access token on the HttpClient
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", AuthenticatedSession.AccessToken);
-            return;
         }
 
         /// <summary>
@@ -173,7 +172,7 @@ namespace KoenZomers.Tado.Api
             queryBuilder.Add("scope", "home.user");
             queryBuilder.Add("username", Username);
 
-            return await PostMessageGetResponse<Entities.Session>(TadoApiAuthUrl, queryBuilder);
+            return await PostMessageGetResponse<Entities.Session>(TadoApiAuthUrl, queryBuilder, false);
         }
 
         /// <summary>
@@ -190,7 +189,7 @@ namespace KoenZomers.Tado.Api
             queryBuilder.Add("refresh_token", AuthenticatedSession.RefreshToken);
             queryBuilder.Add("scope", "home.user");
 
-            return await PostMessageGetResponse<Entities.Session>(TadoApiAuthUrl, queryBuilder);
+            return await PostMessageGetResponse<Entities.Session>(TadoApiAuthUrl, queryBuilder, false);
         }
 
         /// <summary>
@@ -254,16 +253,20 @@ namespace KoenZomers.Tado.Api
         /// <param name="queryBuilder">The querystring parameters to send in the POST body</param>
         /// <typeparam name="T">Type of object to try to parse the response JSON into</typeparam>
         /// <param name="uri">Uri of the webservice to send the message to</param>
+        /// <param name="requiresAuthenticatedSession">True to indicate that this request must have a valid oAuth token</param>
         /// <returns>Object of type T with the parsed response</returns>
-        private async Task<T> PostMessageGetResponse<T>(Uri uri, Helpers.QueryStringBuilder queryBuilder)
+        private async Task<T> PostMessageGetResponse<T>(Uri uri, Helpers.QueryStringBuilder queryBuilder, bool requiresAuthenticatedSession)
         {
             if (uri == null)
             {
                 throw new ArgumentNullException("Uri has not been provided");
             }
 
-            // Ensure a valid OAuth token is set on the HttpClient if possible
-            await EnsureAccessToken();
+            if (requiresAuthenticatedSession)
+            {
+                // Ensure a valid OAuth token is set on the HttpClient if possible
+                await EnsureAccessToken();
+            }
 
             // Prepare the content to POST
             using (var content = new StringContent(queryBuilder.ToString(), Encoding.UTF8, "application/x-www-form-urlencoded"))
