@@ -2,6 +2,12 @@
 This library for C# will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
 ## Version History
 
+0.3 - released March 26, 2018
+
+- Fixed an issue where a recursive loop would arise causing a StackOverflow exception as soon as the access token would expire and the refresh token would be used to get a new access token
+- Updated the Client ID and Client Secret to be the special ones set up by Tado for 3rd parties, as by their request
+- Fixed a disposal issue when providing proxy configuration to the Tado session instance
+
 0.2.1 - released March 13, 2018
 
 - Added option to provide duration of the heating or off to SetTemperatureCelcius, SetTemperatureFahrenheit and SwitchHeatingOff. This can be: until next manual change, until next scheduled event or for a specific duration.
@@ -77,7 +83,7 @@ Package statistics: https://www.nuget.org/packages/KoenZomers.Tado.Api
 With this API at its current state you can:
 
 - Authenticate to the Tado v2 API using an username and password to get an OAuth2 token
-- Validate with each request if the access token is still valid (lifetime is 10 minutes) and if not, uses the refresh token to get a new access token (lifetime is 1 day) and if that also fails, uses the username/password to get a new context token
+- Validate with each request if the access token is still valid (lifetime is 10 minutes / 599 seconds) and if not, uses the refresh token to get a new access token (lifetime is 1 day) and if that also fails, uses the username/password to get a new context token
 - Retrieve information about the currently logged on user
 - Retrieve information about all configured zones in your house
 - Retrieve information about all registered Tado devices in your house
