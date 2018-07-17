@@ -633,9 +633,22 @@ namespace KoenZomers.Tado.Api
         /// <param name="zoneId">Id of the zone to set the temperature of</param>
         /// <param name="temperature">Temperature to set the zone to</param>
         /// <returns>The summarized new state of the zone</returns>
+        [Obsolete("SetTemperatureCelcius is deprecated, please rewrite your code to use SetHeatingTemperatureCelcius instead")]
         public async Task<Entities.ZoneSummary> SetTemperatureCelsius(int homeId, int zoneId, double temperature)
         {
-            return await SetTemperatureCelcius(homeId, zoneId, temperature, Enums.DurationModes.UntilNextManualChange);
+            return await SetHeatingTemperatureCelsius(homeId, zoneId, temperature);
+        }
+
+        /// <summary>
+        /// Sets the temperature in a zone in the home with the provided Id through the Tado API
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the temperature of</param>
+        /// <param name="zoneId">Id of the zone to set the temperature of</param>
+        /// <param name="temperature">Temperature to set the zone to</param>
+        /// <returns>The summarized new state of the zone</returns>
+        public async Task<Entities.ZoneSummary> SetHeatingTemperatureCelsius(int homeId, int zoneId, double temperature)
+        {
+            return await SetHeatingTemperatureCelcius(homeId, zoneId, temperature, Enums.DurationModes.UntilNextManualChange);
         }
 
         /// <summary>
@@ -647,7 +660,66 @@ namespace KoenZomers.Tado.Api
         /// <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
         /// <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
         /// <returns>The summarized new state of the zone</returns>
+        [Obsolete("SetTemperatureCelcius is deprecated, please rewrite your code to use SetHeatingTemperatureCelcius instead")]
         public async Task<Entities.ZoneSummary> SetTemperatureCelcius(int homeId, int zoneId, double temperature, Enums.DurationModes durationMode, TimeSpan? timer = null)
+        {
+            return await SetHeatingTemperatureCelcius(homeId, zoneId, temperature, durationMode, timer);
+        }
+
+        /// <summary>
+        /// Sets the temperature in a zone in the home with the provided Id through the Tado API for the duration as specified
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the temperature of</param>
+        /// <param name="zoneId">Id of the zone to set the temperature of</param>
+        /// <param name="temperature">Temperature to set the zone to</param>
+        /// <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+        /// <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+        /// <returns>The summarized new state of the zone</returns>
+        public async Task<Entities.ZoneSummary> SetHeatingTemperatureCelcius(int homeId, int zoneId, double temperature, Enums.DurationModes durationMode, TimeSpan? timer = null)
+        {
+            return await SetTemperature(homeId, zoneId, temperature, null, Enums.DeviceTypes.Heating, durationMode, timer);
+        }
+
+        /// <summary>
+        /// Sets the hot water temperature in the home with the provided Id through the Tado API for the duration as specified
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the temperature of</param>
+        /// <param name="temperatureCelcius">Temperature in Celcius to set the zone to</param>
+        /// <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+        /// <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+        /// <returns>The summarized new state of the zone</returns>
+        public async Task<Entities.ZoneSummary> SetHotWaterTemperatureCelcius(int homeId, double temperatureCelcius, Enums.DurationModes durationMode, TimeSpan? timer = null)
+        {
+            // Tado Hot Water is zone 0
+            return await SetTemperature(homeId, 0, temperatureCelcius, null, Enums.DeviceTypes.HotWater, durationMode, timer);
+        }
+
+        /// <summary>
+        /// Sets the hot water temperature in the home with the provided Id through the Tado API for the duration as specified
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the temperature of</param>
+        /// <param name="temperatureFahrenheit">Temperature in Fahrenheit to set the zone to</param>
+        /// <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+        /// <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+        /// <returns>The summarized new state of the zone</returns>
+        public async Task<Entities.ZoneSummary> SetHotWaterTemperatureFahrenheit(int homeId, double temperatureFahrenheit, Enums.DurationModes durationMode, TimeSpan? timer = null)
+        {
+            // Tado Hot Water is zone 0
+            return await SetTemperature(homeId, 0, null, temperatureFahrenheit, Enums.DeviceTypes.HotWater, durationMode, timer);
+        }
+
+        /// <summary>
+        /// Sets the temperature in a zone in the home with the provided Id through the Tado API for the duration as specified
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the temperature of</param>
+        /// <param name="zoneId">Id of the zone to set the temperature of</param>
+        /// <param name="temperatureCelcius">Temperature in Celcius to set the zone to. Provide NULL for both temperatureCelcius and temperatureFahrenheit to switch the device off.</param>
+        /// <param name="temperatureFahrenheit">Temperature in Fahrenheit to set the zone to. Provide NULL for both temperatureCelcius and temperatureFahrenheit to switch the device off.</param>
+        /// <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+        /// <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+        /// <param name="deviceType">Type of Tado device to switch on</param>
+        /// <returns>The summarized new state of the zone</returns>
+        public async Task<Entities.ZoneSummary> SetTemperature(int homeId, int zoneId, double? temperatureCelcius, double? temperatureFahrenheit, Enums.DeviceTypes deviceType, Enums.DurationModes durationMode, TimeSpan? timer = null)
         {
             // If using Timer mode but not providing a timer duration, switch it to manual
             if (durationMode == Enums.DurationModes.Timer && timer == null)
@@ -658,58 +730,36 @@ namespace KoenZomers.Tado.Api
             EnsureAuthenticatedSession();
 
             // Define the proper command for the provided duration mode
-            var overlay = new Entities.Overlay();
-            switch (durationMode)
+            var overlay = new Entities.Overlay
             {
-                case Enums.DurationModes.UntilNextManualChange:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "ON",
-                        CurrentType = "HEATING",
-                        Temperature = new Entities.Temperature
-                        {
-                            Celsius = temperature
-                        }
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "MANUAL"
-                    };
-                    break;
+                Setting = new Entities.Setting
+                {
+                    DeviceType = deviceType
+                },
+                Termination = new Entities.Termination
+                {
+                    CurrentType = durationMode
+                }
+            };
 
-                case Enums.DurationModes.Timer:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "ON",
-                        CurrentType = "HEATING",
-                        Temperature = new Entities.Temperature
-                        {
-                            Celsius = temperature
-                        }
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "TIMER",
-                        DurationInSeconds = (int)timer.Value.TotalSeconds
-                    };
-                    break;
+            // If no temperature in Celcius and Fahrenheit has been provided, instruct to switch the device off, otherwise instruct to switch it on
+            overlay.Setting.Power = !temperatureCelcius.HasValue && !temperatureFahrenheit.HasValue ? Enums.PowerStates.Off : Enums.PowerStates.On;
 
-                case Enums.DurationModes.UntilNextTimedEvent:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "ON",
-                        CurrentType = "HEATING",
-                        Temperature = new Entities.Temperature
-                        {
-                            Celsius = temperature
-                        }
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "TADO_MODE"
-                    };
-                    break;
+            // If the device is about to be switched on, provide the temperature it should be switched to
+            if(overlay.Setting.Power == Enums.PowerStates.On)
+            {
+                overlay.Setting.Temperature = new Entities.Temperature
+                {
+                    Celsius = temperatureCelcius,
+                    Fahrenheit = temperatureFahrenheit
+                };
             }
+
+            if (durationMode == Enums.DurationModes.Timer)
+            {
+                overlay.Termination.DurationInSeconds = (int)timer.Value.TotalSeconds;
+            }
+
             var request = JsonConvert.SerializeObject(overlay);
 
             var response = await SendMessageReturnResponse<Entities.ZoneSummary>(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/overlay"), HttpStatusCode.OK);
@@ -723,9 +773,22 @@ namespace KoenZomers.Tado.Api
         /// <param name="zoneId">Id of the zone to set the temperature of</param>
         /// <param name="temperature">Temperature to set the zone to</param>
         /// <returns>The summarized new state of the zone</returns>
+        [Obsolete("SetTemperatureFahrenheit is deprecated, please rewrite your code to use SetHeatingTemperatureFahrenheit instead")]
         public async Task<Entities.ZoneSummary> SetTemperatureFahrenheit(int homeId, int zoneId, double temperature)
         {
-            return await SetTemperatureFahrenheit(homeId, zoneId, temperature, Enums.DurationModes.UntilNextManualChange);
+            return await SetHeatingTemperatureFahrenheit(homeId, zoneId, temperature);
+        }
+
+        /// <summary>
+        /// Sets the temperature in a zone in the home with the provided Id through the Tado API
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the temperature of</param>
+        /// <param name="zoneId">Id of the zone to set the temperature of</param>
+        /// <param name="temperature">Temperature to set the zone to</param>
+        /// <returns>The summarized new state of the zone</returns>
+        public async Task<Entities.ZoneSummary> SetHeatingTemperatureFahrenheit(int homeId, int zoneId, double temperature)
+        {
+            return await SetHeatingTemperatureFahrenheit(homeId, zoneId, temperature, Enums.DurationModes.UntilNextManualChange);
         }
 
         /// <summary>
@@ -737,73 +800,24 @@ namespace KoenZomers.Tado.Api
         /// <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
         /// <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
         /// <returns>The summarized new state of the zone</returns>
+        [Obsolete("SetTemperatureFahrenheit is deprecated, please rewrite your code to use SetHeatingTemperatureFahrenheit instead")]
         public async Task<Entities.ZoneSummary> SetTemperatureFahrenheit(int homeId, int zoneId, double temperature, Enums.DurationModes durationMode, TimeSpan? timer = null)
         {
-            // If using Timer mode but not providing a timer duration, switch it to manual
-            if (durationMode == Enums.DurationModes.Timer && timer == null)
-            {
-                durationMode = Enums.DurationModes.UntilNextManualChange;
-            }
+            return await SetHeatingTemperatureFahrenheit(homeId, zoneId, temperature, durationMode, timer);
+        }
 
-            EnsureAuthenticatedSession();
-
-            // Define the proper command for the provided duration mode
-            var overlay = new Entities.Overlay();
-            switch (durationMode)
-            {
-                case Enums.DurationModes.UntilNextManualChange:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "ON",
-                        CurrentType = "HEATING",
-                        Temperature = new Entities.Temperature
-                        {
-                            Fahrenheit = temperature
-                        }
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "MANUAL"
-                    };
-                    break;
-
-                case Enums.DurationModes.Timer:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "ON",
-                        CurrentType = "HEATING",
-                        Temperature = new Entities.Temperature
-                        {
-                            Fahrenheit = temperature
-                        }
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "TIMER",
-                        DurationInSeconds = (int) timer.Value.TotalSeconds
-                    };
-                    break;
-
-                case Enums.DurationModes.UntilNextTimedEvent:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "ON",
-                        CurrentType = "HEATING",
-                        Temperature = new Entities.Temperature
-                        {
-                            Fahrenheit = temperature
-                        }
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "TADO_MODE"
-                    };
-                    break;
-            }
-            var request = JsonConvert.SerializeObject(overlay);
-
-            var response = await SendMessageReturnResponse<Entities.ZoneSummary>(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/overlay"), HttpStatusCode.OK);
-            return response;
+        /// <summary>
+        /// Sets the temperature in a zone in the home with the provided Id through the Tado API for the duration as specified
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the temperature of</param>
+        /// <param name="zoneId">Id of the zone to set the temperature of</param>
+        /// <param name="temperature">Temperature to set the zone to</param>
+        /// <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+        /// <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+        /// <returns>The summarized new state of the zone</returns>
+        public async Task<Entities.ZoneSummary> SetHeatingTemperatureFahrenheit(int homeId, int zoneId, double temperature, Enums.DurationModes durationMode, TimeSpan? timer = null)
+        {
+            return await SetTemperature(homeId, zoneId, null, temperature, Enums.DeviceTypes.Heating, durationMode, timer);
         }
 
         /// <summary>
@@ -827,59 +841,19 @@ namespace KoenZomers.Tado.Api
         /// <returns>The summarized new state of the zone</returns>
         public async Task<Entities.ZoneSummary> SwitchHeatingOff(int homeId, int zoneId, Enums.DurationModes durationMode, TimeSpan? timer = null)
         {
-            EnsureAuthenticatedSession();
+            return await SetTemperature(homeId, zoneId, null, null, Enums.DeviceTypes.Heating, durationMode, timer);
+        }
 
-            // If using Timer mode but not providing a timer duration, switch it to manual
-            if(durationMode == Enums.DurationModes.Timer && timer == null)
-            {
-                durationMode = Enums.DurationModes.UntilNextManualChange;
-            }
-
-            // Define the proper command for the provided duration mode
-            var overlay = new Entities.Overlay();
-            switch (durationMode)
-            {
-                case Enums.DurationModes.UntilNextManualChange:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "OFF",
-                        CurrentType = "HEATING"
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "MANUAL"
-                    };
-                    break;
-
-                case Enums.DurationModes.Timer:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "OFF",
-                        CurrentType = "HEATING"
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "TIMER",
-                        DurationInSeconds = (int) timer.Value.TotalSeconds
-                    };
-                    break;
-
-                case Enums.DurationModes.UntilNextTimedEvent:
-                    overlay.Setting = new Entities.Setting
-                    {
-                        Power = "OFF",
-                        CurrentType = "HEATING"
-                    };
-                    overlay.Termination = new Entities.Termination
-                    {
-                        CurrentType = "TADO_MODE"
-                    };
-                    break;
-            }
-            var request = JsonConvert.SerializeObject(overlay);
-
-            var response = await SendMessageReturnResponse<Entities.ZoneSummary>(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/overlay"), HttpStatusCode.OK);
-            return response;
+        /// <summary>
+        /// Switches the hot water off in the home with the provided Id through the Tado API for the duration as specified
+        /// </summary>
+        /// <param name="homeId">Id of the home to switch the heating off in</param>
+        /// <param name="durationMode">Defines the duration for which the temperature will remain switched off</param>
+        /// <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+        /// <returns>The summarized new state of the zone</returns>
+        public async Task<Entities.ZoneSummary> SwitchHotWaterOff(int homeId, Enums.DurationModes durationMode, TimeSpan? timer = null)
+        {
+            return await SetTemperature(homeId, 0, null, null, Enums.DeviceTypes.HotWater, durationMode, timer);
         }
 
         /// <summary>

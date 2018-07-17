@@ -51,6 +51,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\DeviceTypeConverter.cs" />
+    <Compile Include="Converters\PowerStatesConverter.cs" />
+    <Compile Include="Converters\DurationModeConverter.cs" />
     <Compile Include="Entities\ActivityDataPoints.cs" />
     <Compile Include="Entities\Address.cs" />
     <Compile Include="Entities\Capability.cs" />
@@ -92,6 +95,9 @@
     <Compile Include="Entities\WeatherState.cs" />
     <Compile Include="Entities\Zone.cs" />
     <Compile Include="Entities\ZoneSummary.cs" />
+    <Compile Include="Enums\PowerStates.cs" />
+    <Compile Include="Enums\TerminationTypes.cs" />
+    <Compile Include="Enums\DeviceTypes.cs" />
     <Compile Include="Enums\DurationModes.cs" />
     <Compile Include="Exceptions\RequestFailedException.cs" />
     <Compile Include="Exceptions\SessionAuthenticationFailedException.cs" />

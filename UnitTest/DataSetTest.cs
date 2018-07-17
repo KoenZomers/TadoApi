@@ -37,19 +37,19 @@ namespace KoenZomers.Tado.Api.UnitTest
         /// Test if the temperature can be set in Celsius
         /// </summary>
         [TestMethod]
-        public async Task SetTemperatureCelciusTest()
+        public async Task SetHeatingTemperatureCelciusTest()
         {
             // Get the current settings in the zone so we can set it back again
             var zone = await session.GetSummarizedZoneState(HomeId, ZoneId);
 
-            // Test setting the zone to another temperature
-            var response = await session.SetTemperatureCelsius(HomeId, ZoneId, 5.5);
+            // Test setting the zone heating temperature to another temperature
+            var response = await session.SetHeatingTemperatureCelsius(HomeId, ZoneId, 5.5);
             Assert.IsNotNull(response, "Failed to set the temperature of a zone");
 
             if (zone.Setting.Temperature.Celsius.HasValue)
             {
-                // Set the zone back to its original temperature
-                await session.SetTemperatureCelsius(HomeId, ZoneId, zone.Setting.Temperature.Celsius.Value);
+                // Set the zone heating temperature back to its original temperature
+                await session.SetHeatingTemperatureCelsius(HomeId, ZoneId, zone.Setting.Temperature.Celsius.Value);
             }
         }
 
@@ -57,19 +57,19 @@ namespace KoenZomers.Tado.Api.UnitTest
         /// Test if the temperature can be set in Fahrenheit
         /// </summary>
         [TestMethod]
-        public async Task SetTemperatureFahrenheitTest()
+        public async Task SetHeatingTemperatureFahrenheitTest()
         {
             // Get the current settings in the zone so we can set it back again
             var zone = await session.GetSummarizedZoneState(HomeId, ZoneId);
 
-            // Test setting the zone to another temperature
-            var response = await session.SetTemperatureFahrenheit(HomeId, ZoneId, 42);
+            // Test setting the zone heating temperature to another temperature
+            var response = await session.SetHeatingTemperatureFahrenheit(HomeId, ZoneId, 42);
             Assert.IsNotNull(response, "Failed to set the temperature of a zone");
 
             if (zone.Setting.Temperature.Fahrenheit.HasValue)
             {
-                // Set the zone back to its original temperature
-                await session.SetTemperatureFahrenheit(HomeId, ZoneId, zone.Setting.Temperature.Fahrenheit.Value);
+                // Set the zone heating temperature back to its original temperature
+                await session.SetHeatingTemperatureFahrenheit(HomeId, ZoneId, zone.Setting.Temperature.Fahrenheit.Value);
             }
         }
 
@@ -83,20 +83,20 @@ namespace KoenZomers.Tado.Api.UnitTest
             var zone = await session.GetSummarizedZoneState(HomeId, ZoneId);
 
             Entities.ZoneSummary response;
-            if(zone.Setting.Power.Equals("ON", System.StringComparison.InvariantCultureIgnoreCase))
+            if(zone.Setting.Power == Enums.PowerStates.On)
             {
                 response = await session.SwitchHeatingOff(HomeId, ZoneId);
             }
             else
             {
-                response = await session.SetTemperatureCelsius(HomeId, ZoneId, 10);
+                response = await session.SetHeatingTemperatureCelsius(HomeId, ZoneId, 10);
             }
             Assert.IsNotNull(response, "Failed to switch the heating in a zone");
 
             // Switch the heating setting back to its initial value
-            if (zone.Setting.Power.Equals("ON", System.StringComparison.InvariantCultureIgnoreCase))
+            if (zone.Setting.Power == Enums.PowerStates.On)
             {
-                await session.SetTemperatureCelsius(HomeId, ZoneId, zone.Setting.Temperature.Celsius.Value);
+                await session.SetHeatingTemperatureCelsius(HomeId, ZoneId, zone.Setting.Temperature.Celsius.Value);
             }
             else
             {
@@ -129,6 +129,87 @@ namespace KoenZomers.Tado.Api.UnitTest
         {
             var success = await session.SayHi(DeviceId);
             Assert.IsTrue(success, "Failed to display Hi on a Tado device");
+        }
+
+        /// <summary>
+        /// Test if the temperature of the hot water boiler can be set in Fahrenheit
+        /// </summary>
+        [TestMethod]
+        public async Task SetHotWaterTemperatureFahrenheitTest()
+        {
+            // Get the current settings in the zone so we can set it back again. Assuming that hot water is always zone 0. Have yet to verify this.
+            var zone = await session.GetSummarizedZoneState(HomeId, 0);
+
+            // Test setting the hot water boiler temperature to another temperature
+            var response = await session.SetHotWaterTemperatureFahrenheit(HomeId, 115, Enums.DurationModes.UntilNextManualChange);
+            Assert.IsNotNull(response, "Failed to set the temperature of the hot water boiler");
+
+            if (zone.Setting.Power == Enums.PowerStates.On)
+            {
+                // Set the hot water boiler temperature back to its original temperature
+                await session.SetHotWaterTemperatureFahrenheit(HomeId, zone.Setting.Temperature.Fahrenheit.Value, zone.Termination.CurrentType.Value);
+            }
+            else
+            {
+                // Switch the hot water boiler back off again
+                response = await session.SwitchHotWaterOff(HomeId, zone.Termination.CurrentType.Value);
+            }
+        }
+
+        /// <summary>
+        /// Test if the temperature of the hot water boiler can be set in Celcius
+        /// </summary>
+        [TestMethod]
+        public async Task SetHotWaterTemperatureCelciusTest()
+        {
+            // Get the current settings in the zone so we can set it back again. Assuming that hot water is always zone 0. Have yet to verify this.
+            var zone = await session.GetSummarizedZoneState(HomeId, 0);
+
+            // Test setting the hot water boiler temperature to another temperature
+            var response = await session.SetHotWaterTemperatureCelcius(HomeId, 45, Enums.DurationModes.UntilNextManualChange);
+            Assert.IsNotNull(response, "Failed to set the temperature of the hot water boiler");
+
+            if (zone.Setting.Power == Enums.PowerStates.On)
+            {
+                // Set the hot water boiler temperature back to its original temperature
+                await session.SetHotWaterTemperatureCelcius(HomeId, zone.Setting.Temperature.Celsius.Value, zone.Termination.CurrentType.Value);
+            }
+            else
+            {
+                // Switch the hot water boiler back off again
+                response = await session.SwitchHotWaterOff(HomeId, zone.Termination.CurrentType.Value);
+            }
+        }
+
+        /// <summary>
+        /// Test if the hot water boiler can be switched off
+        /// </summary>
+        [TestMethod]
+        public async Task SwitchHotWaterOffTest()
+        {
+            // Get the current settings in the zone so we can set it back again. Assuming that hot water is always zone 0. Have yet to verify this.
+            var zone = await session.GetSummarizedZoneState(HomeId, 0);
+
+            Entities.ZoneSummary response;
+            if (zone.Setting.Power == Enums.PowerStates.On)
+            {
+                response = await session.SwitchHotWaterOff(HomeId, Enums.DurationModes.UntilNextManualChange);
+            }
+            else
+            {
+                response = await session.SetHotWaterTemperatureCelcius(HomeId, 45, Enums.DurationModes.UntilNextManualChange);
+            }
+            Assert.IsNotNull(response, "Failed to switch the temperature of the hot water boiler");
+
+            // Switch the heating setting back to its initial value
+            if (zone.Setting.Power == Enums.PowerStates.On)
+            {
+                await session.SetHotWaterTemperatureCelcius(HomeId, zone.Setting.Temperature.Celsius.Value, zone.Termination.CurrentType.Value);
+            }
+            else
+            {
+                await session.SwitchHotWaterOff(HomeId, zone.Termination.CurrentType.Value);
+            }
         }
     }
 }

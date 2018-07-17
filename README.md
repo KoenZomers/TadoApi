@@ -2,6 +2,14 @@
 This library for C# will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
 ## Version History
 
+0.3.1 - released July 17, 2018
+
+- Marked SetTemperatureCelsius and SetTemperatureFahrenheit as deprecated in favor of using SetHeatingTemperatureCelsius and SetHeatingTemperatureFahrenheit so it becomes clearer that the methods will set a heating temperature. The deprecated methods will stay for a few versions longer for backwards compatibility but will eventually be removed to avoid clutter in the code.
+- Added a SetTemperature method which is the basic method used by the other temperature methods and removes duplicate code. As it may be tricky to use this method properly due to the many parameters, it is advised to use one of the methods that are targeting a specific goal, i.e. SetHeatingTemperatureCelcius or SetHotWaterTemperatureCelcius.
+- Added comments to more entities to clarify what information they contain
+- Added more enums for entities which seem to only be certain values. It may be that this breaks your current code by entities changing type from i.e. string to an enumerator.
+- For the Hot Water boiler in Tado I'm currently assuming that this is always zone 0. If this isn't the case for your Tado setup, please let me know and I'll have to change the code to suit this scenario.
+
 0.3 - released March 26, 2018
 
 - Fixed an issue where a recursive loop would arise causing a StackOverflow exception as soon as the access token would expire and the refresh token would be used to get a new access token
@@ -56,16 +64,28 @@ Once this succeeds, you can call one of the methods on the session instance to r
 var me = await session.GetMe();
 ```
 
-To set the temperature on a zone:
+To set the heating temperature to 19 degrees Celcius on Tado zone 1:
 
 ```C#
-await session.SetTemperatureCelsius(123456, 0, 19);
+await session.SetHeatingTemperatureCelsius(123456, 1, 19);
 ```
 
-To switch off the heating in a zone:
+To switch off the heating in zone 1:
 
 ```C#
-await session.SwitchHeatingOff(123456, 0);
+await session.SwitchHeatingOff(123456, 1);
+```
+
+Switch the hot water boiler on and set it to 65 degrees Celcius:
+
+```C#
+await session.SetHotWaterTemperatureCelsius(123456, 65);
+```
+
+To switch off the hot water boiler:
+
+```C#
+await session.SwitchHotWaterOff(123456);
 ```
 
 Check out the UnitTest project in this solution for full insight in the possibilities and working code samples. If you want to run the Unit Tests, copy the App.sample.config file to become App.config and fill in the appSettings values with the proper values valid for your scenario.
@@ -98,8 +118,9 @@ With this API at its current state you can:
 - Get information about the weather around your house
 - Get the early start setting of a zone
 - Switch the early start setting of a zone to enabled or disabled
-- Set the desired temperature in a zone in Celsius and Fahrenheit
+- Set the desired heating temperature in a zone in Celsius and Fahrenheit
 - Switch off the heating in a zone
+- Switch the hot water boiler on and off
 - Show Hi on Tado thermostats or Tado knobs
 
 ## Still missing
