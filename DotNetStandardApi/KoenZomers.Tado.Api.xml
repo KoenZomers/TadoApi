@@ -1,0 +1,719 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>KoenZomers.Tado.Api</name>
+    </assembly>
+    <members>
+        <member name="T:KoenZomers.Tado.Api.Converters.DeviceTypeConverter">
+            <summary>
+            Converts the Tado device type returned by the Tado API to the DeviceTypes enumerator in this project
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Converters.DurationModeConverter">
+            <summary>
+            Converts the duration mode type returned by the Tado API to the DurationModes enumerator in this project
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Converters.PowerStatesConverter">
+            <summary>
+            Converts the power state returned by the Tado API to the PowerStates enumerator in this project
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Characteristics">
+            <summary>
+            Characteristics of a device
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.ConnectionState">
+            <summary>
+            State of the connection towards a Tado device
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.ContactDetails">
+            <summary>
+            Contains contact details of an owner of a house
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.DazzleMode">
+            <summary>
+            Details about the current configuration of the dazzle mode (animation when changing the temperature)
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Device">
+            <summary>
+            Information about one Tado device
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Home">
+            <summary>
+            Contains information about a home where Tado is being used
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.HomeState">
+            <summary>
+            Information about the state of the home
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.House">
+            <summary>
+            Contains detailed information about a house
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Humidity">
+            <summary>
+            Humidity measured by a Tado device
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Installation">
+            <summary>
+            One Tado installation
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.MobileDevice.BearingFromHome">
+            <summary>
+            Contains the coordinates relative to the home location where Tado is being used
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.MobileDevice.Details">
+            <summary>
+            Contains detailed information about a device connected to Tado
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.MobileDevice.Item">
+            <summary>
+            Contains information about a mobile device set up to be used with Tado
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.MobileDevice.Location">
+            <summary>
+            Contains the location of a device
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.MobileDevice.Settings">
+            <summary>
+            Contains settings specific to the device
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.MountingState">
+            <summary>
+            State of the mounted Tado device
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.OpenWindowDetection">
+            <summary>
+            Open Window Detection settings
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Overlay.Setting">
+            <summary>
+            The current state of the Tado device
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Overlay.Termination">
+            <summary>
+            Information on when the current state of the Tado device will end
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.SensorDataPoints">
+            <summary>
+            Temperature and humidity measured by a Tado device
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Session">
+            <summary>
+            Session token coming forward from an OAuth authentication request
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Session.Expires">
+            <summary>
+            Date and time at which the Access Token expires
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Setting">
+            <summary>
+            The current state of a Tado device
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Setting.DeviceType">
+            <summary>
+            Type of Tado device
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Setting.Power">
+            <summary>
+            The powerstate of the Tado device
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Setting.Temperature">
+            <summary>
+            The temperature the Tado device is set to change the zone to
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.State">
+            <summary>
+            State of a specific zone
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Temperature">
+            <summary>
+            Information regarding a temperature
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Temperature.Celsius">
+            <summary>
+            The temperature in degrees Celcius
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Temperature.Fahrenheit">
+            <summary>
+            The temperature in degrees Fahrenheit
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Termination">
+            <summary>
+            Information about when the current state of the Tado device is expected to change
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Termination.CurrentType">
+            <summary>
+            Defines if and what will make the Tado device change its state
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Termination.ProjectedExpiry">
+            <summary>
+            Date and time at which the termination mode is expected to change. NULL if CurrentType is Manual thus impossible to predict when the next state change will be.
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Termination.Expiry">
+            <summary>
+            Date and time at which the termination mode will change. NULL if CurrentType is Manual thus impossible to predict when the next state change will be.
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.Termination.DurationInSeconds">
+            <summary>
+            Amount of seconds remaining before the Tado device will change its state. Will only contain a value if CurrentType is Timer.
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.User">
+            <summary>
+            Contains information about a user
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Weather">
+            <summary>
+            The current weather
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.Zone">
+            <summary>
+            Information about one zone
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Entities.ZoneSummary">
+            <summary>
+            Summarized state of a zone
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.ZoneSummary.Setting">
+            <summary>
+            The current state of the Tado device
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Entities.ZoneSummary.Termination">
+            <summary>
+            Information on when the current state of the Tado device will end
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Enums.DeviceTypes">
+            <summary>
+            Defines the types of Tado devices that can be switched
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.DeviceTypes.Heating">
+            <summary>
+            Heating
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.DeviceTypes.HotWater">
+            <summary>
+            Hot water
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Enums.DurationModes">
+            <summary>
+            Defines the modes of the duration of changing a temperature
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.DurationModes.UntilNextTimedEvent">
+            <summary>
+            Keep the setting until the next scheduled event starts
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.DurationModes.Timer">
+            <summary>
+            Keep the setting for a specific duration
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.DurationModes.UntilNextManualChange">
+            <summary>
+            Keep the setting until the user makes another change
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Enums.PowerStates">
+            <summary>
+            Defines the power state a Tado device can be in
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.PowerStates.On">
+            <summary>
+            Device is ON
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.PowerStates.Off">
+            <summary>
+            Device is OFF
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Enums.TerminationTypes2">
+            <summary>
+            Defines the types to which a Tado device can be set that define the end of the current state of the device
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.TerminationTypes2.Manual">
+            <summary>
+            The state will not change unless the device gets explicit instructions to do so
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.TerminationTypes2.NextScheduledEvent">
+            <summary>
+            The state of the device will change at the next scheduled event for the device
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.TerminationTypes2.Timer">
+            <summary>
+            The state of the device will change after a preset amount of time has elapsed
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Exceptions.RequestFailedException">
+            <summary>
+            Exception thrown when a request failed
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Exceptions.RequestFailedException.Uri">
+            <summary>
+            Uri that was called
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Exceptions.SessionAuthenticationFailedException">
+            <summary>
+            Exception thrown when authenticating failed
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Exceptions.SessionNotAuthenticatedException">
+            <summary>
+            Exception thrown when functionality is called which requires the session to be authenticated while it isn't yet
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.Username">
+            <summary>
+            Username to use to connect to the Tado API. Set by providing it in the constructor.
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.Password">
+            <summary>
+            Password to use to connect to the Tado API. Set by providing it in the constructor.
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.TadoApiBaseUrl">
+            <summary>
+            Base Uri with which all Tado API requests start
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.TadoApiAuthUrl">
+            <summary>
+            Tado API Uri to authenticate against
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.ClientId">
+            <summary>
+            Tado API Client Id to use for the OAuth token
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.ClientSecret">
+            <summary>
+            Tado API Client Secret to use for the OAuth token
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.UserAgent">
+            <summary>
+            Allows setting an User Agent which will be provided to the Tado API
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.ProxyConfiguration">
+            <summary>
+            If provided, this proxy will be used for communication with the Tado API. If not provided, no proxy will be used.
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.ProxyCredential">
+            <summary>
+            If provided along with a proxy configuration, these credentials will be used to authenticate to the proxy. If omitted, the default system credentials will be used.
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.IsAuthenticated">
+            <summary>
+            Boolean indicating if the current session is authenticated
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Session.AuthenticatedSession">
+            <summary>
+            Authenticated Session that will be used to communicate with the Tado API
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Session._httpClient">
+            <summary>
+            HttpClient to use for network communications towards the Tado API
+            </summary>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.#ctor(System.String,System.String)">
+            <summary>
+            Initiates a new session to the Tado API
+            </summary>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.Dispose">
+            <summary>
+            Clean up
+            </summary>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.EnsureAccessToken">
+            <summary>
+            Validates if the session has authenticated already and if so, ensures the AccessToken coming forward from the authentication is still valid and assigns it to the HttpClient in this session
+            </summary>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.EnsureAuthenticatedSession">
+            <summary>
+            Ensures the current session is authenticated or throws an exception if it's not
+            </summary>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetNewSession">
+            <summary>
+            Sets up a new session with the Tado API
+            </summary>
+            <returns>Session instance</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetRefreshedSession">
+            <summary>
+            Sets up a session with the Tado API based on the refresh token
+            </summary>
+            <returns>Session instance</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.Authenticate">
+            <summary>
+            Authenticates this session with the Tado API
+            </summary>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.CreateHttpClient">
+            <summary>
+            Instantiates a new HttpClient preconfigured for use. Note that the caller is responsible for disposing this object.
+            </summary>
+            <returns>HttpClient instance</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.PostMessageGetResponse``1(System.Uri,KoenZomers.Tado.Api.Helpers.QueryStringBuilder,System.Boolean)">
+            <summary>
+            Sends a HTTP POST to the provided uri
+            </summary>
+            <param name="queryBuilder">The querystring parameters to send in the POST body</param>
+            <typeparam name="T">Type of object to try to parse the response JSON into</typeparam>
+            <param name="uri">Uri of the webservice to send the message to</param>
+            <param name="requiresAuthenticatedSession">True to indicate that this request must have a valid oAuth token</param>
+            <returns>Object of type T with the parsed response</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetMessageReturnResponse``1(System.Uri,System.Nullable{System.Net.HttpStatusCode})">
+            <summary>
+            Sends a message to the Tado API and returns the provided object of type T with the response
+            </summary>
+            <typeparam name="T">Object type of the expected response</typeparam>
+            <param name="uri">Uri of the webservice to send the message to</param>
+            <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be NULL to indicate failure.</param>
+            <returns>Typed entity with the result from the webservice</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SendMessageReturnResponse``1(System.String,System.Net.Http.HttpMethod,System.Uri,System.Nullable{System.Net.HttpStatusCode})">
+            <summary>
+            Sends a message to the Tado API and returns the provided object of type T with the response
+            </summary>
+            <typeparam name="T">Object type of the expected response</typeparam>
+            <param name="uri">Uri of the webservice to send the message to</param>
+            <param name="bodyText">Text to send to the webservice in the body</param>
+            <param name="httpMethod">Http Method to use to connect to the webservice</param>
+            <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be NULL to indicate failure.</param>
+            <returns>Typed entity with the result from the webservice</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SendMessage(System.String,System.Net.Http.HttpMethod,System.Uri,System.Nullable{System.Net.HttpStatusCode})">
+            <summary>
+            Sends a message to the Tado API without looking at the response
+            </summary>
+            <param name="uri">Uri of the webservice to send the message to</param>
+            <param name="bodyText">Text to send to the webservice in the body</param>
+            <param name="httpMethod">Http Method to use to connect to the webservice</param>
+            <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be false to indicate failure.</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetMe">
+            <summary>
+            Returns information about the user currently connected through the Tado API
+            </summary>
+            <returns>Information about the current user</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetZones(System.Int32)">
+            <summary>
+            Returns the zones configured in the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <returns>The configured zones</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetDevices(System.Int32)">
+            <summary>
+            Returns the devices configured in the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <returns>The configured devices</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetMobileDevices(System.Int32)">
+            <summary>
+            Returns the mobile devices connected to the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <returns>The connected mobile devices</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetMobileDeviceSettings(System.Int32,System.Int32)">
+            <summary>
+            Returns the settings of a mobile device connected to the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <param name="mobileDeviceId">Id of the mobile device to query</param>
+            <returns>The settings of the connected mobile device</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetInstallations(System.Int32)">
+            <summary>
+            Returns the installations in the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <returns>The installations</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetHomeState(System.Int32)">
+            <summary>
+            Returns the state of the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <returns>The state of the home</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetZoneState(System.Int32,System.Int32)">
+            <summary>
+            Returns the state of a zone in the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <param name="zoneId">Id of the zone to query</param>
+            <returns>The state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetSummarizedZoneState(System.Int32,System.Int32)">
+            <summary>
+            Returns the summarized state of a zone in the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <param name="zoneId">Id of the zone to query</param>
+            <returns>The summarized state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetWeather(System.Int32)">
+            <summary>
+            Returns the current weather at the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <returns>The current weater at the home</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetHome(System.Int32)">
+            <summary>
+            Returns the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <returns>The home details</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetUsers(System.Int32)">
+            <summary>
+            Returns the users with access to the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <returns>The users with access</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetZoneCapabilities(System.Int32,System.Int32)">
+            <summary>
+            Returns the capabilities of a zone in the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <param name="zoneId">Id of the zone to query</param>
+            <returns>The capabilities of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetEarlyStart(System.Int32,System.Int32)">
+            <summary>
+            Returns the early start of a zone in the home with the provided Id from the Tado API
+            </summary>
+            <param name="homeId">Id of the home to query</param>
+            <param name="zoneId">Id of the zone to query</param>
+            <returns>The early start setting of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetTemperatureCelsius(System.Int32,System.Int32,System.Double)">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperature">Temperature to set the zone to</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetHeatingTemperatureCelsius(System.Int32,System.Int32,System.Double)">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperature">Temperature to set the zone to</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetTemperatureCelcius(System.Int32,System.Int32,System.Double,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperature">Temperature to set the zone to</param>
+            <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetHeatingTemperatureCelcius(System.Int32,System.Int32,System.Double,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperature">Temperature to set the zone to</param>
+            <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetHotWaterTemperatureCelcius(System.Int32,System.Double,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Sets the hot water temperature in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="temperatureCelcius">Temperature in Celcius to set the zone to</param>
+            <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetHotWaterTemperatureFahrenheit(System.Int32,System.Double,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Sets the hot water temperature in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="temperatureFahrenheit">Temperature in Fahrenheit to set the zone to</param>
+            <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetTemperature(System.Int32,System.Int32,System.Nullable{System.Double},System.Nullable{System.Double},KoenZomers.Tado.Api.Enums.DeviceTypes,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperatureCelcius">Temperature in Celcius to set the zone to. Provide NULL for both temperatureCelcius and temperatureFahrenheit to switch the device off.</param>
+            <param name="temperatureFahrenheit">Temperature in Fahrenheit to set the zone to. Provide NULL for both temperatureCelcius and temperatureFahrenheit to switch the device off.</param>
+            <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <param name="deviceType">Type of Tado device to switch on</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetTemperatureFahrenheit(System.Int32,System.Int32,System.Double)">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperature">Temperature to set the zone to</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetHeatingTemperatureFahrenheit(System.Int32,System.Int32,System.Double)">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperature">Temperature to set the zone to</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetTemperatureFahrenheit(System.Int32,System.Int32,System.Double,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperature">Temperature to set the zone to</param>
+            <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetHeatingTemperatureFahrenheit(System.Int32,System.Int32,System.Double,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Sets the temperature in a zone in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to set the temperature of</param>
+            <param name="zoneId">Id of the zone to set the temperature of</param>
+            <param name="temperature">Temperature to set the zone to</param>
+            <param name="durationMode">Defines the duration for which the heating will be switched to the provided temperature</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SwitchHeatingOff(System.Int32,System.Int32)">
+            <summary>
+            Switches the heating off in a zone in the home with the provided Id through the Tado API. Use SetTemperatureCelsius or SetTemperatureFahrenheit to switch the heating on again.
+            </summary>
+            <param name="homeId">Id of the home to switch the heating off in</param>
+            <param name="zoneId">Id of the zone to switch the heating off in</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SwitchHeatingOff(System.Int32,System.Int32,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Switches the heating off in a zone in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to switch the heating off in</param>
+            <param name="zoneId">Id of the zone to switch the heating off in</param>
+            <param name="durationMode">Defines the duration for which the temperature will remain switched off</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SwitchHotWaterOff(System.Int32,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
+            <summary>
+            Switches the hot water off in the home with the provided Id through the Tado API for the duration as specified
+            </summary>
+            <param name="homeId">Id of the home to switch the heating off in</param>
+            <param name="durationMode">Defines the duration for which the temperature will remain switched off</param>
+            <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
+            <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetEarlyStart(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Sets the EarlyStart mode of a zone in the home with the provided Id through the Tado API
+            </summary>
+            <param name="homeId">Id of the home to switch the heating off in</param>
+            <param name="zoneId">Id of the zone to switch the heating off in</param>
+            <param name="enabled">True to enable EarlyStart or False to disable it</param>
+            <returns>The new EarlyStart mode of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SayHi(System.String)">
+            <summary>
+            Shows Hi on the Tado device to identify it
+            </summary>
+            <param name="deviceId">Id / serial number of the Tado device</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+    </members>
+</doc>

@@ -1,6 +1,13 @@
 # Tado API
-This library for C# will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
+This library compiled for .NET Standard 2.0 will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
+
 ## Version History
+
+0.4.0 - released March 4, 2019
+
+- Converted the .NET Framework API library to .NET Standard 2.0 so it can be used from non Windows environments as well
+- Updated Newtonsoft.JSON to version 12.0.1
+- Updated the Unit Test packages to the latest version so the Unit Tests work again with the latest version of Visual Studio 2017
 
 0.3.1 - released July 17, 2018
 
@@ -31,7 +38,7 @@ This library for C# will allow you to easily communicate with the Tado API and r
 
 ## System Requirements
 
-This API is built using the Microsoft .NET 4.6.2 framework and is fully asynchronous
+This API is built using the Microsoft .NET Standard 2.0 framework and is fully asynchronous
 
 ## Warning
 
