@@ -3,6 +3,10 @@ This library compiled for .NET Standard 2.0 will allow you to easily communicate
 
 ## Version History
 
+0.4.0.1 - released January 15, 2020
+
+- GetMe() wasn't returning any data when using the NuGet package. Fixed that in this version. Thanks to [twiettwiet](https://github.com/twiettwiet) for reporting this through [Issue #3](https://github.com/KoenZomers/TadoApi/issues/3)
+
 0.4.0 - released March 4, 2019
 
 - Converted the .NET Framework API library to .NET Standard 2.0 so it can be used from non Windows environments as well

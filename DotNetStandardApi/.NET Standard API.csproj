@@ -4,15 +4,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>KoenZomers.Tado.Api</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.4.0.0</Version>
+    <Version>0.4.0.1</Version>
     <Authors>Koen Zomers</Authors>
     <Description>API in .NET Standard 2.0 to communicate with a Tado home heating/cooling system</Description>
     <PackageProjectUrl>https://github.com/KoenZomers/TadoApi</PackageProjectUrl>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\KoenZomers.Tado.Api.snk</AssemblyOriginatorKeyFile>
-    <PackageReleaseNotes>- Converted the .NET Framework API library to .NET Standard 2.0 so it can be used from non Windows environments as well
-- Updated Newtonsoft.JSON to version 12.0.1
-- Updated the Unit Test packages to the latest version so the Unit Tests work again with the latest version of Visual Studio 2017</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fixed issue with GetMe() not returning any data</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/KoenZomers/TadoApi/blob/master/LICENSE</PackageLicenseUrl>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
