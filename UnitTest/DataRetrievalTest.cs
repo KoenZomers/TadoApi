@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using KoenZomers.Tado.Api.Helpers;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 
 namespace KoenZomers.Tado.Api.UnitTest
@@ -176,6 +177,17 @@ namespace KoenZomers.Tado.Api.UnitTest
             var response = await session.GetEarlyStart(HomeId, ZoneId);
 
             Assert.IsNotNull(response, "Failed to retrieve information about the early start setting of a zone");
+        }
+
+        /// <summary>
+        /// Test to show how IsOpenWindowDetected can be used on a zone's state.
+        /// </summary>
+        [TestMethod]
+        public async Task IsOpenWindowDetectedTest()
+        {
+            Entities.State response = await session.GetZoneState(HomeId, ZoneId);
+
+            Assert.IsInstanceOfType(response.IsOpenWindowDetected(), typeof(bool));
         }
     }
 }

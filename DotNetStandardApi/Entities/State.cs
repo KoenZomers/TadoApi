@@ -31,6 +31,9 @@ namespace KoenZomers.Tado.Api.Entities
         [JsonProperty("openWindow")]
         public object OpenWindow { get; set; }
 
+        [JsonProperty("openWindowDetected")]
+        public bool? OpenWindowDetected { get; set; }
+
         [JsonProperty("link")]
         public Link Link { get; set; }
 
