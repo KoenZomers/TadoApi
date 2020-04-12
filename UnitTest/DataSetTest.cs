@@ -211,5 +211,13 @@ namespace KoenZomers.Tado.Api.UnitTest
                 await session.SwitchHotWaterOff(HomeId, zone.Termination.CurrentType.Value);
             }
         }
+
+        [TestMethod]
+        public async Task SwitchHomePresenceAwayThenHomeTest()
+        {
+            Assert.IsTrue(await session.SetHomePresence(HomeId, Enums.HomePresence.AWAY));
+
+            Assert.IsTrue(await session.SetHomePresence(HomeId, Enums.HomePresence.HOME));
+        }
     }
 }
