@@ -215,9 +215,9 @@ namespace KoenZomers.Tado.Api.UnitTest
         [TestMethod]
         public async Task SwitchHomePresenceAwayThenHomeTest()
         {
-            Assert.IsTrue(await session.SetHomePresence(HomeId, Enums.HomePresence.AWAY));
+            Assert.IsTrue(await session.SetHomePresence(HomeId, Enums.HomePresence.Away));
 
-            Assert.IsTrue(await session.SetHomePresence(HomeId, Enums.HomePresence.HOME));
+            Assert.IsTrue(await session.SetHomePresence(HomeId, Enums.HomePresence.Home));
         }
     }
 }
