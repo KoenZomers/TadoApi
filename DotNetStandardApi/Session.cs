@@ -548,6 +548,33 @@ namespace KoenZomers.Tado.Api
         }
 
         /// <summary>
+        /// Sets the specified zone to be in a "open window" state, if an open window is detected.
+        /// Check if an open window is detected by Tado with: <see cref="StateExtensions.IsOpenWindowDetected(Entities.State)"/>.
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the "open window" state for.</param>
+        /// <param name="zoneId">Id of the zone to set the "open window" state for.</param>
+        /// <returns>Boolean indicating if the request was successful.</returns>
+        public Task<bool> SetOpenWindow(int homeId, int zoneId)
+        {
+            EnsureAuthenticatedSession();
+
+            return SendMessage("{}", HttpMethod.Post, new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/state/openWindow/activate"), HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Resets the specified zone back to a "closed window" state, if it is currently in a "open window" state.
+        /// </summary>
+        /// <param name="homeId">Id of the home to reset the "open window" state for.</param>
+        /// <param name="zoneId">Id of the zone to reset the "open window" state for.</param>
+        /// <returns>Boolean indicating if the request was successful.</returns>
+        public Task<bool> ResetOpenWindow(int homeId, int zoneId)
+        {
+            EnsureAuthenticatedSession();
+
+            return SendMessage("{}", HttpMethod.Delete, new Uri(TadoApiBaseUrl, $"homes/{homeId}/zones/{zoneId}/state/openWindow"), HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
         /// Returns the summarized state of a zone in the home with the provided Id from the Tado API
         /// </summary>
         /// <param name="homeId">Id of the home to query</param>
