@@ -1,11 +1,12 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
+﻿using KoenZomers.Tado.Api.Enums;
+using KoenZomers.Tado.Api.Helpers;
 using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using KoenZomers.Tado.Api.Helpers;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace KoenZomers.Tado.Api
 {
@@ -870,6 +871,23 @@ namespace KoenZomers.Tado.Api
         public async Task<Entities.ZoneSummary> SwitchHeatingOff(int homeId, int zoneId, Enums.DurationModes durationMode, TimeSpan? timer = null)
         {
             return await SetTemperature(homeId, zoneId, null, null, Enums.DeviceTypes.Heating, durationMode, timer);
+        }
+
+        /// <summary>
+        /// Sets the Home Presence mode manually, regardless of current geofence status of home devices.
+        /// </summary>
+        /// <param name="homeId">Id of the home to set the home presence for.</param>
+        /// <param name="presence">Presence to set for the home.</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when an invalid enum value is used.</exception>
+        public Task<bool> SetHomePresence(int homeId, HomePresence presence)
+        {
+            EnsureAuthenticatedSession();
+            EnumValidation.EnsureEnumWithinRange(presence);
+
+            var request = JsonConvert.SerializeObject(new { homePresence = presence.ToString() });
+
+            return SendMessage(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/presenceLock"), HttpStatusCode.NoContent);
         }
 
         /// <summary>

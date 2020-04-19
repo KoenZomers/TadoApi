@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>KoenZomers.Tado.Api</AssemblyName>
+    <RootNamespace>KoenZomers.Tado.Api</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.4.0.1</Version>
     <Authors>Koen Zomers</Authors>
