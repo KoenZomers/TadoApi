@@ -547,11 +547,11 @@ namespace KoenZomers.Tado.Api
 
         /// <summary>
         /// Sets the specified zone to be in a "open window" state, if an open window is detected.
-        /// Check if an open window is detected by Tado with: <see cref="StateExtensions.IsOpenWindowDetected(Entities.State)"/>.
+        /// Check if an open window is detected by Tado by looking at <see cref="Entities.State.OpenWindowDetected"/>.
         /// </summary>
-        /// <param name="homeId">Id of the home to set the "open window" state for.</param>
-        /// <param name="zoneId">Id of the zone to set the "open window" state for.</param>
-        /// <returns>Boolean indicating if the request was successful.</returns>
+        /// <param name="homeId">Id of the home to set the "open window" state for</param>
+        /// <param name="zoneId">Id of the zone to set the "open window" state for</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
         public Task<bool> SetOpenWindow(int homeId, int zoneId)
         {
             EnsureAuthenticatedSession();
@@ -560,11 +560,11 @@ namespace KoenZomers.Tado.Api
         }
 
         /// <summary>
-        /// Resets the specified zone back to a "closed window" state, if it is currently in a "open window" state.
+        /// Resets the specified zone back to a "closed window" state, if it is currently in a "open window" state
         /// </summary>
-        /// <param name="homeId">Id of the home to reset the "open window" state for.</param>
-        /// <param name="zoneId">Id of the zone to reset the "open window" state for.</param>
-        /// <returns>Boolean indicating if the request was successful.</returns>
+        /// <param name="homeId">Id of the home to reset the "open window" state for</param>
+        /// <param name="zoneId">Id of the zone to reset the "open window" state for</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
         public Task<bool> ResetOpenWindow(int homeId, int zoneId)
         {
             EnsureAuthenticatedSession();
