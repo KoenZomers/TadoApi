@@ -187,7 +187,7 @@ namespace KoenZomers.Tado.Api.UnitTest
         {
             Entities.State response = await session.GetZoneState(HomeId, ZoneId);
 
-            Assert.IsInstanceOfType(response.IsOpenWindowDetected(), typeof(bool));
+            Assert.IsInstanceOfType(response.OpenWindowDetected, typeof(bool));
         }
     }
 }
