@@ -886,7 +886,7 @@ namespace KoenZomers.Tado.Api
             EnsureAuthenticatedSession();
             Helpers.EnumValidation.EnsureEnumWithinRange(presence);
 
-            var request = JsonConvert.SerializeObject(new { homePresence = presence.ToString() });
+            var request = JsonConvert.SerializeObject(new { homePresence = presence.ToString().ToUpperInvariant() });
 
             return SendMessage(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/presenceLock"), HttpStatusCode.NoContent);
         }
