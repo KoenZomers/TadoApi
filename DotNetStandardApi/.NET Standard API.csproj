@@ -5,13 +5,16 @@
     <AssemblyName>KoenZomers.Tado.Api</AssemblyName>
     <RootNamespace>KoenZomers.Tado.Api</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.4.0.1</Version>
+    <Version>0.4.1.0</Version>
     <Authors>Koen Zomers</Authors>
     <Description>API in .NET Standard 2.0 to communicate with a Tado home heating/cooling system</Description>
     <PackageProjectUrl>https://github.com/KoenZomers/TadoApi</PackageProjectUrl>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\KoenZomers.Tado.Api.snk</AssemblyOriginatorKeyFile>
-    <PackageReleaseNotes>- Fixed issue with GetMe() not returning any data</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added `SetHomePresence` to allow forcing the home state. Only seems to work for Tado v3+ members.
+- Added `SetOpenWindow` and `ResetOpenWindow` to force the window state on a zone.
+- Added `OpenWindowDetected` to `State` to get information on if an open window has been detected.
+Thanks to AndreasHassing for his contributions to add these features.</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/KoenZomers/TadoApi/blob/master/LICENSE</PackageLicenseUrl>
     <DelaySign>false</DelaySign>
   </PropertyGroup>

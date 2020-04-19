@@ -3,6 +3,13 @@ This library compiled for .NET Standard 2.0 will allow you to easily communicate
 
 ## Version History
 
+0.4.1.0 - released April 19, 2020
+
+- Added `SetHomePresence` to allow forcing the home state. Only seems to work for Tado v3+ members.
+- Added `SetOpenWindow` and `ResetOpenWindow` to force the window state on a zone.
+- Added `OpenWindowDetected` to `State` to get information on if an open window has been detected.
+Thanks to [AndreasHassing](https://github.com/AndreasHassing) for his contributions to add these features.
+
 0.4.0.1 - released January 15, 2020
 
 - GetMe() wasn't returning any data when using the NuGet package. Fixed that in this version. Thanks to [twiettwiet](https://github.com/twiettwiet) for reporting this through [Issue #3](https://github.com/KoenZomers/TadoApi/issues/3)

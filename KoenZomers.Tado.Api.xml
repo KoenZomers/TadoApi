@@ -259,6 +259,21 @@
             Keep the setting until the user makes another change
             </summary>
         </member>
+        <member name="T:KoenZomers.Tado.Api.Enums.HomePresence">
+            <summary>
+            Defines the possible states home presence can be in
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.HomePresence.Home">
+            <summary>
+            At least someone is home
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Enums.HomePresence.Away">
+            <summary>
+            Everyone is away
+            </summary>
+        </member>
         <member name="T:KoenZomers.Tado.Api.Enums.PowerStates">
             <summary>
             Defines the power state a Tado device can be in
@@ -312,6 +327,16 @@
         <member name="T:KoenZomers.Tado.Api.Exceptions.SessionNotAuthenticatedException">
             <summary>
             Exception thrown when functionality is called which requires the session to be authenticated while it isn't yet
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Helpers.EnumValidation">
+            <summary>
+            Helpers to work with enums
+            </summary>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Helpers.EnumValidation.EnsureEnumWithinRange``1(``0)">
+            <summary>
+            Ensures the provided enum is valid for the range of allowed enum options
             </summary>
         </member>
         <member name="P:KoenZomers.Tado.Api.Session.Username">
@@ -514,6 +539,23 @@
             <param name="zoneId">Id of the zone to query</param>
             <returns>The state of the zone</returns>
         </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetOpenWindow(System.Int32,System.Int32)">
+            <summary>
+            Sets the specified zone to be in a "open window" state, if an open window is detected.
+            Check if an open window is detected by Tado by looking at <see cref="P:KoenZomers.Tado.Api.Entities.State.OpenWindowDetected"/>.
+            </summary>
+            <param name="homeId">Id of the home to set the "open window" state for</param>
+            <param name="zoneId">Id of the zone to set the "open window" state for</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.ResetOpenWindow(System.Int32,System.Int32)">
+            <summary>
+            Resets the specified zone back to a "closed window" state, if it is currently in a "open window" state
+            </summary>
+            <param name="homeId">Id of the home to reset the "open window" state for</param>
+            <param name="zoneId">Id of the zone to reset the "open window" state for</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
         <member name="M:KoenZomers.Tado.Api.Session.GetSummarizedZoneState(System.Int32,System.Int32)">
             <summary>
             Returns the summarized state of a zone in the home with the provided Id from the Tado API
@@ -689,6 +731,15 @@
             <param name="durationMode">Defines the duration for which the temperature will remain switched off</param>
             <param name="timer">Only applicapble if for durationMode Timer has been chosen. In that case it allows providing for how long the duration should be.</param>
             <returns>The summarized new state of the zone</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetHomePresence(System.Int32,KoenZomers.Tado.Api.Enums.HomePresence)">
+            <summary>
+            Sets the Home Presence mode manually, regardless of current geofence status of home devices.
+            </summary>
+            <param name="homeId">Id of the home to set the home presence for.</param>
+            <param name="presence">Presence to set for the home.</param>
+            <returns>Boolean indicating if the request was successful</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when an invalid enum value is used.</exception>
         </member>
         <member name="M:KoenZomers.Tado.Api.Session.SwitchHotWaterOff(System.Int32,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
             <summary>
