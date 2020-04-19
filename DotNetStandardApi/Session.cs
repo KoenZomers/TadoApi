@@ -1,6 +1,4 @@
-﻿using KoenZomers.Tado.Api.Enums;
-using KoenZomers.Tado.Api.Helpers;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -750,6 +748,9 @@ namespace KoenZomers.Tado.Api
         /// <returns>The summarized new state of the zone</returns>
         public async Task<Entities.ZoneSummary> SetTemperature(int homeId, int zoneId, double? temperatureCelcius, double? temperatureFahrenheit, Enums.DeviceTypes deviceType, Enums.DurationModes durationMode, TimeSpan? timer = null)
         {
+            Helpers.EnumValidation.EnsureEnumWithinRange(deviceType);
+            Helpers.EnumValidation.EnsureEnumWithinRange(durationMode);
+
             // If using Timer mode but not providing a timer duration, switch it to manual
             if (durationMode == Enums.DurationModes.Timer && timer == null)
             {
@@ -880,10 +881,10 @@ namespace KoenZomers.Tado.Api
         /// <param name="presence">Presence to set for the home.</param>
         /// <returns>Boolean indicating if the request was successful</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when an invalid enum value is used.</exception>
-        public Task<bool> SetHomePresence(int homeId, HomePresence presence)
+        public Task<bool> SetHomePresence(int homeId, Enums.HomePresence presence)
         {
             EnsureAuthenticatedSession();
-            EnumValidation.EnsureEnumWithinRange(presence);
+            Helpers.EnumValidation.EnsureEnumWithinRange(presence);
 
             var request = JsonConvert.SerializeObject(new { homePresence = presence.ToString() });
 
