@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace KoenZomers.Tado.Api.UnitTest
@@ -218,6 +219,76 @@ namespace KoenZomers.Tado.Api.UnitTest
             Assert.IsTrue(await session.SetHomePresence(HomeId, Enums.HomePresence.Away));
 
             Assert.IsTrue(await session.SetHomePresence(HomeId, Enums.HomePresence.Home));
+        }
+
+        /// <summary>
+        /// Test if a zone temperature offset in Celsius can be set
+        /// </summary>
+        [TestMethod]
+        public async Task SetZoneTemperatureOffsetInCelciusTest()
+        {
+            // Get the zones
+            var zones = await session.GetZones(HomeId);
+
+            if (zones == null || zones.Length == 0 || zones[0].Devices == null | zones[0].Devices.Length == 0)
+            {
+                Assert.Inconclusive("Test inconclusive as the test data is not valid");
+            }
+
+            var zone = zones.FirstOrDefault(z => z.Id == ZoneId);
+
+            if(zone == null)
+            {
+                Assert.Inconclusive($"Failed to retrive zone with Id {ZoneId}");
+            }
+
+            // Get the currently set offset
+            var currentOffset = await session.GetZoneTemperatureOffset(zone.Devices[0]);
+
+            // Test setting the offset of the first zone
+            var response = await session.SetZoneTemperatureOffsetCelcius(zone.Devices[0], 1);
+            Assert.IsNotNull(response, "Failed to set the offset temperature of a zone");
+
+            if (currentOffset != null)
+            {
+                // Set the zone temperature offset back to its original offset
+                await session.SetZoneTemperatureOffsetCelcius(zone.Devices[0], currentOffset.Celsius.Value);
+            }
+        }
+
+        /// <summary>
+        /// Test if a zone temperature offset in Fahrenheit can be set
+        /// </summary>
+        [TestMethod]
+        public async Task SetZoneTemperatureOffsetInFahrenheit()
+        {
+            // Get the zones
+            var zones = await session.GetZones(HomeId);
+
+            if (zones == null || zones.Length == 0 || zones[0].Devices == null | zones[0].Devices.Length == 0)
+            {
+                Assert.Inconclusive("Test inconclusive as the test data is not valid");
+            }
+
+            var zone = zones.FirstOrDefault(z => z.Id == ZoneId);
+
+            if (zone == null)
+            {
+                Assert.Inconclusive($"Failed to retrive zone with Id {ZoneId}");
+            }
+
+            // Get the currently set offset
+            var currentOffset = await session.GetZoneTemperatureOffset(zone.Devices[0]);
+
+            // Test setting the offset of the first zone
+            var response = await session.SetZoneTemperatureOffsetFahrenheit(zone.Devices[0], 1.8);
+            Assert.IsNotNull(response, "Failed to set the offset temperature of a zone");
+
+            if (currentOffset != null)
+            {
+                // Set the zone temperature offset back to its original offset
+                await session.SetZoneTemperatureOffsetFahrenheit(zone.Devices[0], currentOffset.Fahrenheit.Value);
+            }
         }
     }
 }

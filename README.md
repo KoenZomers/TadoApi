@@ -3,6 +3,11 @@ This library compiled for .NET Standard 2.0 will allow you to easily communicate
 
 ## Version History
 
+0.4.2.0 - released February 3, 2021
+
+- Added `GetZoneTemperatureOffset` to allow for getting the current temperature offset in a zone
+- Added several variants of `SetZoneTemperatureOffsetFahrenheit` and `SetZoneTemperatureOffsetCelcius` which allow for the zone/room temperature offset to be set
+
 0.4.1.0 - released April 19, 2020
 
 - Added `SetHomePresence` to allow forcing the home state. Only seems to work for Tado v3+ members.

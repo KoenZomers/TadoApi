@@ -877,18 +877,18 @@ namespace KoenZomers.Tado.Api
         /// <summary>
         /// Sets the Home Presence mode manually, regardless of current geofence status of home devices.
         /// </summary>
-        /// <param name="homeId">Id of the home to set the home presence for.</param>
-        /// <param name="presence">Presence to set for the home.</param>
+        /// <param name="homeId">Id of the home to set the home presence for</param>
+        /// <param name="presence">Presence to set for the home</param>
         /// <returns>Boolean indicating if the request was successful</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when an invalid enum value is used.</exception>
-        public Task<bool> SetHomePresence(int homeId, Enums.HomePresence presence)
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when an invalid enum value is used</exception>
+        public async Task<bool> SetHomePresence(int homeId, Enums.HomePresence presence)
         {
             EnsureAuthenticatedSession();
             Helpers.EnumValidation.EnsureEnumWithinRange(presence);
 
             var request = JsonConvert.SerializeObject(new { homePresence = presence.ToString().ToUpperInvariant() });
 
-            return SendMessage(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/presenceLock"), HttpStatusCode.NoContent);
+            return await SendMessage(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"homes/{homeId}/presenceLock"), HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -936,6 +936,160 @@ namespace KoenZomers.Tado.Api
             var success = await SendMessage(null, HttpMethod.Post, new Uri(TadoApiBaseUrl, $"devices/{deviceId}/identify"), HttpStatusCode.OK);
             return success;
         }
+
+        #region Zone Temperature Offset
+
+        /// <summary>
+        /// Returns the temperature offset set for a specific device from the Tado API
+        /// </summary>
+        /// <param name="deviceId">Id of the device to query</param>
+        /// <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
+        public async Task<Entities.Temperature> GetZoneTemperatureOffset(string deviceId)
+        {
+            if (string.IsNullOrEmpty(deviceId))
+            {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
+
+            EnsureAuthenticatedSession();
+
+            var response = await GetMessageReturnResponse<Entities.Temperature>(new Uri(TadoApiBaseUrl, $"devices/{deviceId}/temperatureOffset"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// Returns the temperature offset set for a specific device from the Tado API
+        /// </summary>
+        /// <param name="device">The device to query</param>
+        /// <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
+        public async Task<Entities.Temperature> GetZoneTemperatureOffset(Entities.Device device)
+        {
+            if (device == null)
+            {
+                throw new ArgumentNullException(nameof(device));
+            }
+
+            EnsureAuthenticatedSession();
+
+            var response = await GetMessageReturnResponse<Entities.Temperature>(new Uri(TadoApiBaseUrl, $"devices/{device.ShortSerialNo}/temperatureOffset"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// Returns the temperature offset set for a specific device from the Tado API
+        /// </summary>
+        /// <param name="device">The device to query</param>
+        /// <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
+        public async Task<Entities.Temperature> GetZoneTemperatureOffset(Entities.Zone zone)
+        {
+            if (zone == null)
+            {
+                throw new ArgumentNullException(nameof(zone));
+            }
+            if (zone.Devices.Length == 0)
+            {
+                throw new ArgumentException("Provided zone has no devices registered to it", nameof(zone));
+            }
+
+            EnsureAuthenticatedSession();
+
+            var response = await GetMessageReturnResponse<Entities.Temperature>(new Uri(TadoApiBaseUrl, $"devices/{zone.Devices[0].ShortSerialNo}/temperatureOffset"), HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// Sets the temperature offset in Celcius of a specific zone 
+        /// </summary>
+        /// <param name="deviceId">Id of the Tado device in the zone to set the offset for</param>
+        /// <param name="temperature">Temperature in Celcius to set the offset to</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SetZoneTemperatureOffsetCelcius(string deviceId, double temperature)
+        {
+            EnsureAuthenticatedSession();
+
+            var request = JsonConvert.SerializeObject(new { celsius = temperature });
+
+            return await SendMessage(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"devices/{deviceId}/temperatureOffset"), HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// Sets the temperature offset in Celcius of a specific zone 
+        /// </summary>
+        /// <param name="device">The Tado device in the zone to set the offset for</param>
+        /// <param name="temperature">Temperature in Celcius to set the offset to</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SetZoneTemperatureOffsetCelcius(Entities.Device device, double temperature)
+        {
+            return await SetZoneTemperatureOffsetCelcius(device.ShortSerialNo, temperature);
+        }
+
+        /// <summary>
+        /// Sets the temperature offset in Celcius of a specific room 
+        /// </summary>
+        /// <param name="zone">The Tado zone to set the offset for</param>
+        /// <param name="temperature">Temperature in Celcius to set the offset to</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SetZoneTemperatureOffsetCelcius(Entities.Zone zone, double temperature)
+        {
+            if(zone == null)
+            {
+                throw new ArgumentNullException(nameof(zone));
+            }
+            if(zone.Devices.Length == 0)
+            {
+                throw new ArgumentException("Provided zone has no devices registered to it", nameof(zone));
+            }
+
+            return await SetZoneTemperatureOffsetCelcius(zone.Devices[0].ShortSerialNo, temperature);
+        }
+
+        /// <summary>
+        /// Sets the temperature offset in Fahrenheit of a specific zone 
+        /// </summary>
+        /// <param name="deviceId">Id of the Tado device in the zone to set the offset for</param>
+        /// <param name="temperature">Temperature in Fahrenheit to set the offset to</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SetZoneTemperatureOffsetFahrenheit(string deviceId, double temperature)
+        {
+            EnsureAuthenticatedSession();
+
+            var request = JsonConvert.SerializeObject(new { fahrenheit = temperature });
+
+            return await SendMessage(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"devices/{deviceId}/temperatureOffset"), HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// Sets the temperature offset in Fahrenheit of a specific zone 
+        /// </summary>
+        /// <param name="device">The Tado device in the zone to set the offset for</param>
+        /// <param name="temperature">Temperature in Fahrenheit to set the offset to</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SetZoneTemperatureOffsetFahrenheit(Entities.Device device, double temperature)
+        {
+            return await SetZoneTemperatureOffsetFahrenheit(device.ShortSerialNo, temperature);
+        }
+
+        /// <summary>
+        /// Sets the temperature offset in Fahrenheit of a specific room 
+        /// </summary>
+        /// <param name="zone">The Tado zone to set the offset for</param>
+        /// <param name="temperature">Temperature in Fahrenheit to set the offset to</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SetZoneTemperatureOffsetFahrenheit(Entities.Zone zone, double temperature)
+        {
+            if (zone == null)
+            {
+                throw new ArgumentNullException(nameof(zone));
+            }
+            if (zone.Devices.Length == 0)
+            {
+                throw new ArgumentException("Provided zone has no devices registered to it", nameof(zone));
+            }
+
+            return await SetZoneTemperatureOffsetFahrenheit(zone.Devices[0].ShortSerialNo, temperature);
+        }
+
+        #endregion
 
         #endregion
     }

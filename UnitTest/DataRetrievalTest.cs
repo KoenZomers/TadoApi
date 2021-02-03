@@ -1,5 +1,6 @@
 ﻿using KoenZomers.Tado.Api.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace KoenZomers.Tado.Api.UnitTest
@@ -188,6 +189,19 @@ namespace KoenZomers.Tado.Api.UnitTest
             Entities.State response = await session.GetZoneState(HomeId, ZoneId);
 
             Assert.IsInstanceOfType(response.OpenWindowDetected, typeof(bool));
+        }
+
+        /// <summary>
+        /// Test to show how IsOpenWindowDetected can be used on a zone's state.
+        /// </summary>
+        [TestMethod]
+        public async Task GetZoneTemperatureOffset()
+        {
+            Entities.Zone[] zones = await session.GetZones(HomeId);
+            Entities.Zone zone = zones.FirstOrDefault(z => z.Id == ZoneId);
+            Entities.Temperature response = await session.GetZoneTemperatureOffset(zone.Devices[0]);
+
+            Assert.IsNotNull(response.Celsius);
         }
     }
 }
