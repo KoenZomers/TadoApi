@@ -736,10 +736,10 @@
             <summary>
             Sets the Home Presence mode manually, regardless of current geofence status of home devices.
             </summary>
-            <param name="homeId">Id of the home to set the home presence for.</param>
-            <param name="presence">Presence to set for the home.</param>
+            <param name="homeId">Id of the home to set the home presence for</param>
+            <param name="presence">Presence to set for the home</param>
             <returns>Boolean indicating if the request was successful</returns>
-            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when an invalid enum value is used.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when an invalid enum value is used</exception>
         </member>
         <member name="M:KoenZomers.Tado.Api.Session.SwitchHotWaterOff(System.Int32,KoenZomers.Tado.Api.Enums.DurationModes,System.Nullable{System.TimeSpan})">
             <summary>
@@ -764,6 +764,75 @@
             Shows Hi on the Tado device to identify it
             </summary>
             <param name="deviceId">Id / serial number of the Tado device</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetZoneTemperatureOffset(System.String)">
+            <summary>
+            Returns the temperature offset set for a specific device from the Tado API
+            </summary>
+            <param name="deviceId">Id of the device to query</param>
+            <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetZoneTemperatureOffset(KoenZomers.Tado.Api.Entities.Device)">
+            <summary>
+            Returns the temperature offset set for a specific device from the Tado API
+            </summary>
+            <param name="device">The device to query</param>
+            <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.GetZoneTemperatureOffset(KoenZomers.Tado.Api.Entities.Zone)">
+            <summary>
+            Returns the temperature offset set for a specific device from the Tado API
+            </summary>
+            <param name="device">The device to query</param>
+            <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetZoneTemperatureOffsetCelcius(System.String,System.Double)">
+            <summary>
+            Sets the temperature offset in Celcius of a specific zone 
+            </summary>
+            <param name="deviceId">Id of the Tado device in the zone to set the offset for</param>
+            <param name="temperature">Temperature in Celcius to set the offset to</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetZoneTemperatureOffsetCelcius(KoenZomers.Tado.Api.Entities.Device,System.Double)">
+            <summary>
+            Sets the temperature offset in Celcius of a specific zone 
+            </summary>
+            <param name="device">The Tado device in the zone to set the offset for</param>
+            <param name="temperature">Temperature in Celcius to set the offset to</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetZoneTemperatureOffsetCelcius(KoenZomers.Tado.Api.Entities.Zone,System.Double)">
+            <summary>
+            Sets the temperature offset in Celcius of a specific room 
+            </summary>
+            <param name="zone">The Tado zone to set the offset for</param>
+            <param name="temperature">Temperature in Celcius to set the offset to</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetZoneTemperatureOffsetFahrenheit(System.String,System.Double)">
+            <summary>
+            Sets the temperature offset in Fahrenheit of a specific zone 
+            </summary>
+            <param name="deviceId">Id of the Tado device in the zone to set the offset for</param>
+            <param name="temperature">Temperature in Fahrenheit to set the offset to</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetZoneTemperatureOffsetFahrenheit(KoenZomers.Tado.Api.Entities.Device,System.Double)">
+            <summary>
+            Sets the temperature offset in Fahrenheit of a specific zone 
+            </summary>
+            <param name="device">The Tado device in the zone to set the offset for</param>
+            <param name="temperature">Temperature in Fahrenheit to set the offset to</param>
+            <returns>Boolean indicating if the request was successful</returns>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Session.SetZoneTemperatureOffsetFahrenheit(KoenZomers.Tado.Api.Entities.Zone,System.Double)">
+            <summary>
+            Sets the temperature offset in Fahrenheit of a specific room 
+            </summary>
+            <param name="zone">The Tado zone to set the offset for</param>
+            <param name="temperature">Temperature in Fahrenheit to set the offset to</param>
             <returns>Boolean indicating if the request was successful</returns>
         </member>
     </members>
