@@ -145,6 +145,8 @@ With this API at its current state you can:
 - Switch off the heating in a zone
 - Switch the hot water boiler on and off
 - Show Hi on Tado thermostats or Tado knobs
+- Get the temperature offset for a zone/room/device
+- Set the temperature offset for a zone/room/device
 
 ## Still missing
 
