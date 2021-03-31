@@ -937,6 +937,33 @@ namespace KoenZomers.Tado.Api
             return success;
         }
 
+
+        /// <summary>
+        /// Turns the child lock on or off on the provided Tado device
+        /// </summary>
+        /// <param name="device">The Tado device to set the childlock for</param>
+        /// <param name="enableChildLock">Boolean indicating if the childlock should be enabled (true) or disabled (false)</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SetDeviceChildLock(Entities.Device device, bool enableChildLock)
+        {
+            return await SetDeviceChildLock(device.ShortSerialNo, enableChildLock);
+        }
+
+        /// <summary>
+        /// Turns the child lock on or off on the Tado device with the provided Id
+        /// </summary>
+        /// <param name="deviceId">Id of the Tado device to set the childlock for</param>
+        /// <param name="enableChildLock">Boolean indicating if the childlock should be enabled (true) or disabled (false)</param>
+        /// <returns>Boolean indicating if the request was successful</returns>
+        public async Task<bool> SetDeviceChildLock(string deviceId, bool enableChildLock)
+        {
+            EnsureAuthenticatedSession();
+
+            var request = JsonConvert.SerializeObject(new { childLockEnabled = enableChildLock });
+
+            return await SendMessage(request, HttpMethod.Put, new Uri(TadoApiBaseUrl, $"devices/{deviceId}/childLock"), HttpStatusCode.NoContent);
+        }
+
         #region Zone Temperature Offset
 
         /// <summary>
@@ -976,9 +1003,9 @@ namespace KoenZomers.Tado.Api
         }
 
         /// <summary>
-        /// Returns the temperature offset set for a specific device from the Tado API
+        /// Returns the temperature offset set for a specific zone from the Tado API
         /// </summary>
-        /// <param name="device">The device to query</param>
+        /// <param name="zone">The zone to query</param>
         /// <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
         public async Task<Entities.Temperature> GetZoneTemperatureOffset(Entities.Zone zone)
         {

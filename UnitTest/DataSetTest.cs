@@ -290,5 +290,39 @@ namespace KoenZomers.Tado.Api.UnitTest
                 await session.SetZoneTemperatureOffsetFahrenheit(zone.Devices[0], currentOffset.Fahrenheit.Value);
             }
         }
+
+        /// <summary>
+        /// Test if the child lock can be set
+        /// </summary>
+        [TestMethod]
+        public async Task SetChildLockEnabled()
+        {
+            var devices = await session.GetDevices(HomeId);
+
+            if (devices == null || devices.Length == 0)
+            {
+                Assert.Inconclusive("Test inconclusive as the test data is not valid");
+            }
+
+            var device = devices.FirstOrDefault(d => d.ShortSerialNo == DeviceId);
+
+            if (device == null)
+            {
+                Assert.Inconclusive("Test inconclusive as the test data is not valid");
+            }            
+
+            if (!device.ChildLockEnabled.HasValue)
+            {
+                Assert.Inconclusive("Test inconclusive as the test device does not have childlock functionality");
+            }
+
+            var currentChildLockState = device.ChildLockEnabled.Value;
+
+            var response1 = await session.SetDeviceChildLock(device, !currentChildLockState);
+            Assert.IsTrue(response1, "Failed to flip the child lock setting");
+
+            var response2 = await session.SetDeviceChildLock(device, currentChildLockState);
+            Assert.IsTrue(response2, "Failed to return the child lock to its initial value");
+        }
     }
 }

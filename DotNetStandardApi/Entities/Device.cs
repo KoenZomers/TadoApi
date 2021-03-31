@@ -33,5 +33,11 @@ namespace KoenZomers.Tado.Api.Entities
 
         [JsonProperty("batteryState")]
         public string BatteryState { get; set; }
+        
+        /// <summary>
+        /// Indicates if child lock is enabled or disabled on the Tado device
+        /// </summary>
+        [JsonProperty("childLockEnabled")]
+        public bool? ChildLockEnabled { get; set; }
     }
 }

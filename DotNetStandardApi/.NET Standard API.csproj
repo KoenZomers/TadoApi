@@ -5,15 +5,14 @@
     <AssemblyName>KoenZomers.Tado.Api</AssemblyName>
     <RootNamespace>KoenZomers.Tado.Api</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.4.2.0</Version>
+    <Version>0.4.3.0</Version>
     <Authors>Koen Zomers</Authors>
     <Description>API in .NET Standard 2.0 to communicate with a Tado home heating/cooling system</Description>
     <PackageProjectUrl>https://github.com/KoenZomers/TadoApi</PackageProjectUrl>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\KoenZomers.Tado.Api.snk</AssemblyOriginatorKeyFile>
-    <PackageReleaseNotes>- Added `GetZoneTemperatureOffset` to allow for getting the current temperature offset in a zone
-- Added several variants of `SetZoneTemperatureOffsetFahrenheit` and `SetZoneTemperatureOffsetCelcius` which allow for the zone/room temperature offset to be set</PackageReleaseNotes>
-    <PackageLicenseUrl>https://github.com/KoenZomers/TadoApi/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>- Added `SetDeviceChildLock` to allow for enabling or disabling the child lock on a Tado device</PackageReleaseNotes>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
 
