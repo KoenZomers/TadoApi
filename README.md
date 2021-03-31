@@ -3,6 +3,10 @@ This library compiled for .NET Standard 2.0 will allow you to easily communicate
 
 ## Version History
 
+0.4.3.0 - released March 31, 2021
+
+- Added `SetDeviceChildLock` to allow for enabling or disabling the child lock on a Tado device
+
 0.4.2.0 - released February 3, 2021
 
 - Added `GetZoneTemperatureOffset` to allow for getting the current temperature offset in a zone
@@ -111,6 +115,12 @@ To switch off the hot water boiler:
 await session.SwitchHotWaterOff(123456);
 ```
 
+To enable the child lock on a Tado device:
+
+```C#
+await session.SetDeviceChildLock(123456, true);
+```
+
 Check out the UnitTest project in this solution for full insight in the possibilities and working code samples. If you want to run the Unit Tests, copy the App.sample.config file to become App.config and fill in the appSettings values with the proper values valid for your scenario.
 
 ## Available via NuGet
@@ -147,6 +157,7 @@ With this API at its current state you can:
 - Show Hi on Tado thermostats or Tado knobs
 - Get the temperature offset for a zone/room/device
 - Set the temperature offset for a zone/room/device
+- Enable or disable the child lock feature on a Tado device
 
 ## Still missing
 
