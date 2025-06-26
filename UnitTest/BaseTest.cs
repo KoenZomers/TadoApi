@@ -1,40 +1,56 @@
-﻿using System.Configuration;
+﻿using KoenZomers.Tado.Api.Extensions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace KoenZomers.Tado.Api.UnitTest
+namespace KoenZomers.Tado.UnitTest;
+
+/// <summary>
+/// Base functionality shared by all Unit Tests
+/// </summary>
+public abstract class BaseTest
 {
     /// <summary>
-    /// Base functionality shared by all Unit Tests
+    /// The service provider for the application
     /// </summary>
-    public abstract class BaseTest
+    protected readonly IServiceProvider? ServiceProvider;
+
+    /// <summary>
+    /// Access to the service instance
+    /// </summary>
+    protected readonly Api.Controllers.Tado? Service;
+
+    /// <summary>
+    /// Access to the service configuration
+    /// </summary>
+    protected readonly Api.Configuration.Tado? Configuration;
+
+    /// <summary>
+    /// Instantiate the Unit Test by creating the service provider and retrieving the service instance to be tested
+    /// </summary>
+    public BaseTest()
     {
-        /// <summary>
-        /// Username to use to connect to the Tado API
-        /// </summary>
-        public static string Username => ConfigurationManager.AppSettings["TadoUsername"];
+        var services = new ServiceCollection();
 
-        /// <summary>
-        /// Password to use to connect to the Tado API
-        /// </summary>
-        public static string Password => ConfigurationManager.AppSettings["TadoPassword"];
+        // Ensure the configuration is present
+        var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.test.json", optional: true, reloadOnChange: true)
+                .Build();
+        services.AddSingleton<IConfiguration>(config);
 
-        /// <summary>
-        /// Id of the home as registered with Tado
-        /// </summary>
-        public static int HomeId => int.Parse(ConfigurationManager.AppSettings["TadoHomeId"]);
+        // Add the complete service stack
+        Configuration = services.AddTadoServices();
 
-        /// <summary>
-        /// Id of the zone as registered with Tado
-        /// </summary>
-        public static int ZoneId => int.Parse(ConfigurationManager.AppSettings["TadoZoneId"]);
+        ServiceProvider = services.BuildServiceProvider();
 
-        /// <summary>
-        /// Id of the mobile device as registered with Tado
-        /// </summary>
-        public static int MobileDeviceId => int.Parse(ConfigurationManager.AppSettings["TadoMobileDeviceId"]);
+        // Retrieve the requested service type to be tested
+        Service = ServiceProvider.GetService<Api.Controllers.Tado>();
 
-        /// <summary>
-        /// Id of the Tado device
-        /// </summary>
-        public static string DeviceId => ConfigurationManager.AppSettings["TadoDeviceId"];
+        // Ensure the service is present
+        if (Service == null)
+        {
+            throw new InvalidOperationException($"Failed to create service");
+        }
     }
 }

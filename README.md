@@ -1,7 +1,13 @@
 # Tado API
-This library compiled for .NET Standard 2.0 will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
+This library compiled for .NET 9 will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
 
 ## Version History
+
+0.5.0.0 - released June 26, 2025
+
+- Upgraded to .NET 9
+- Rewrite to use Dependency Injenction
+- Applied new Device Auth Flow which is [mandatory by Tado](https://support.tado.com/en/articles/8565472-how-do-i-authenticate-to-access-the-rest-api) as of March 21, 2025
 
 0.4.3.0 - released March 31, 2021
 
@@ -58,7 +64,7 @@ Thanks to [AndreasHassing](https://github.com/AndreasHassing) for his contributi
 
 ## System Requirements
 
-This API is built using the Microsoft .NET Standard 2.0 framework and is fully asynchronous
+This API is built using Microsoft .NET 9 and is fully asynchronous
 
 ## Warning
 
@@ -66,62 +72,7 @@ Tado has not officially released an API yet that developers are free to use. Thi
 
 ## Usage Instructions
 
-To communicate with the Tado API, add the NuGet package to your solution and add a using reference in your code:
-
-```C#
-using KoenZomers.Tado.Api;
-```
-
-Then create a new session instance using:
-
-```C#
-var session = new Session("your@email.com", "yourpassword");
-```
-
-Note that this line does not perform any communications with the Tado API yet. You need to manually trigger authenticate before you can start using the session:
-
-```C#
-await session.Authenticate();
-```
-
-Once this succeeds, you can call one of the methods on the session instance to retrieve data, i.e.:
-
-```C#
-// Retrieves information about the currently logged on user
-var me = await session.GetMe();
-```
-
-To set the heating temperature to 19 degrees Celcius on Tado zone 1:
-
-```C#
-await session.SetHeatingTemperatureCelsius(123456, 1, 19);
-```
-
-To switch off the heating in zone 1:
-
-```C#
-await session.SwitchHeatingOff(123456, 1);
-```
-
-Switch the hot water boiler on and set it to 65 degrees Celcius:
-
-```C#
-await session.SetHotWaterTemperatureCelsius(123456, 65);
-```
-
-To switch off the hot water boiler:
-
-```C#
-await session.SwitchHotWaterOff(123456);
-```
-
-To enable the child lock on a Tado device:
-
-```C#
-await session.SetDeviceChildLock(123456, true);
-```
-
-Check out the UnitTest project in this solution for full insight in the possibilities and working code samples. If you want to run the Unit Tests, copy the App.sample.config file to become App.config and fill in the appSettings values with the proper values valid for your scenario.
+Check out the UnitTest project in this solution for full insight in the possibilities and working code samples. If you want to run the Unit Tests, ensure the appsettings.json file is populated with the proper values valid for your scenario. Remember that it requires you to log on through your browser to Tado for it to get an access token. There is no other way anymore.
 
 ## Available via NuGet
 
@@ -135,8 +86,8 @@ Package statistics: https://www.nuget.org/packages/KoenZomers.Tado.Api
 
 With this API at its current state you can:
 
-- Authenticate to the Tado v2 API using an username and password to get an OAuth2 token
-- Validate with each request if the access token is still valid (lifetime is 10 minutes / 599 seconds) and if not, uses the refresh token to get a new access token (lifetime is 1 day) and if that also fails, uses the username/password to get a new context token
+- Authenticate to the Tado v2 API using the device auth flow
+- Validate with each request if the access token is still valid (lifetime is 10 minutes / 599 seconds) and if not, uses the refresh token to get a new access token (lifetime is 30 days)
 - Retrieve information about the currently logged on user
 - Retrieve information about all configured zones in your house
 - Retrieve information about all registered Tado devices in your house
@@ -165,4 +116,4 @@ With this API at its current state you can:
 
 ## Feedback
 
-Any kind of feedback is welcome! Feel free to drop me an e-mail at koen@zomers.eu
+I cannot and will not provide support for this library. You can use it as is. Feel free to fork off to create your own version out of it. Pull Requests and Issues are not accepted.

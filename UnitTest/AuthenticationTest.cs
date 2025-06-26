@@ -1,48 +1,89 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
-namespace KoenZomers.Tado.Api.UnitTest
+namespace KoenZomers.Tado.UnitTest;
+
+/// <summary>
+/// Unit Tests to validate authenticating against the Tado API
+/// </summary>
+[TestClass]
+public class AuthenticationTest : BaseTest
 {
     /// <summary>
-    /// Unit Tests to validate authenticating against the Tado API
+    /// Test being able to retrieve an authorization URL
     /// </summary>
-    [TestClass]
-    public class AuthenticationTest : BaseTest
+    /// <returns></returns>
+    [TestMethod]
+    public async Task GetDeviceCodeAuthenticationTest()
     {
-        /// <summary>
-        /// Test the scenario where the authentication should succeed
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task AuthenticateSuccessTest()
-        {
-            var session = new Session(Username, Password);
+        if (Service is null) Assert.Fail("Service not available");
 
-            await session.Authenticate();
-            Assert.IsNotNull(session.AuthenticatedSession, "Failed to authenticate");
-        }
+        var authenticationRequest = await Service.GetDeviceCodeAuthentication();
 
-        /// <summary>
-        /// Test the scenario where the authentication would fail
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        [ExpectedException(typeof(Exceptions.SessionAuthenticationFailedException))]
-        public async Task AuthenticateFailTest()
-        {
-            var session = new Session("test@test.com", "someinvalidpassword");
-            await session.Authenticate();
-        }
+        Assert.IsNotNull(authenticationRequest, "Failed to instantiate device authentication flow");
+    }
 
-        /// <summary>
-        /// Test if the an SessionNotAuthenticatedException gets thrown when trying to retrieve data without authenticating first
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(Exceptions.SessionNotAuthenticatedException))]
-        public async Task UnauthenticatedTest()
-        {
-            var session = new Session(Username, Password);
-            await session.GetMe();
-        }
+    /// <summary>
+    /// Test requesting a device authorization code and waiting for it to be completed
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task WaitForDeviceCodeAuthenticationToCompleteTest()
+    {
+        if (Service is null) Assert.Fail("Service not available");
+
+        var authenticationRequest = await Service.GetDeviceCodeAuthentication();
+
+        Assert.IsNotNull(authenticationRequest, "Failed to instantiate device authentication flow");
+
+        Debug.WriteLine($"URL for authentication: {authenticationRequest.VerificationUriComplete}");
+
+        var tokenResponse = await Service.WaitForDeviceCodeAuthenticationToComplete(authenticationRequest);
+
+        Assert.IsNotNull(tokenResponse, "Failed to complete device authentication flow");
+
+        Debug.WriteLine($"Access token: {tokenResponse.AccessToken}");
+        Debug.WriteLine($"Refresh token: {tokenResponse.RefreshToken}");
+    }
+
+    /// <summary>
+    /// Test requesting an access token with a refresh token
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task GetAccessTokenWithRefreshTokenTest()
+    {
+        if (Service is null) Assert.Fail("Service not available");
+
+        var tokenResponse = await Service.GetAccessTokenWithRefreshToken("xxx");
+
+        Assert.IsNotNull(tokenResponse, "Failed to retrieve access token with refresh token");
+    }
+
+    /// <summary>
+    /// Test requesting the Me endpoint from Tado
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task GetMeTest()
+    {
+        if (Service is null) Assert.Fail("Service not available");
+
+        var authenticationRequest = await Service.GetDeviceCodeAuthentication();
+
+        Assert.IsNotNull(authenticationRequest, "Failed to instantiate device authentication flow");
+
+        Debug.WriteLine($"URL for authentication: {authenticationRequest.VerificationUriComplete}");
+
+        var tokenResponse = await Service.WaitForDeviceCodeAuthenticationToComplete(authenticationRequest);
+
+        Assert.IsNotNull(tokenResponse, "Failed to complete device authentication flow");
+
+        Service.Authenticate(tokenResponse);
+
+        var devices = await Service.GetDevices(Configuration.TadoHomeId.Value);
+
+        var me = await Service.SayHi("xxxx");
+
+        Assert.IsNotNull(me, "Failed to retrieve informtion from Tado");
     }
 }
