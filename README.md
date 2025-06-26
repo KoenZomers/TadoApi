@@ -8,6 +8,7 @@ This library compiled for .NET 9 will allow you to easily communicate with the T
 - Upgraded to .NET 9
 - Rewrite to use Dependency Injenction
 - Applied new Device Auth Flow which is [mandatory by Tado](https://support.tado.com/en/articles/8565472-how-do-i-authenticate-to-access-the-rest-api) as of March 21, 2025
+- It is NOT backwards compatible with previous versions of this library. You will need to rewrite your code to use the new API.
 
 0.4.3.0 - released March 31, 2021
 
