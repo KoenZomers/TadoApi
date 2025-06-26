@@ -15,6 +15,8 @@
     <AssemblyOriginatorKeyFile>..\KoenZomers.Tado.Api.snk</AssemblyOriginatorKeyFile>
     <PackageReleaseNotes>- Switched to .NET 9 and updated to use new device code grant flow</PackageReleaseNotes>
     <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
 
@@ -24,6 +26,7 @@
 
   <ItemGroup>
     <None Include="..\KoenZomers.Tado.Api.snk" Link="KoenZomers.Tado.Api.snk" />
+	<None Include="..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>
