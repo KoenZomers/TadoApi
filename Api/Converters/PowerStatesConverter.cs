@@ -1,51 +1,57 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace KoenZomers.Tado.Api.Converters
 {
     /// <summary>
     /// Converts the power state returned by the Tado API to the PowerStates enumerator in this project
     /// </summary>
-    public class PowerStatesConverter : JsonConverter
+    public class PowerStatesConverter : JsonConverter<Enums.PowerStates?>
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override Enums.PowerStates? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            Enums.PowerStates powerState = (Enums.PowerStates)value;
+            if (reader.TokenType != JsonTokenType.String)
+            {
+                return null;
+            }
 
-            switch (powerState)
+            var enumString = reader.GetString();
+            if (string.IsNullOrEmpty(enumString))
+            {
+                return null;
+            }
+
+            return enumString switch
+            {
+                "ON" => Enums.PowerStates.On,
+                "OFF" => Enums.PowerStates.Off,
+                _ => null
+            };
+        }
+
+        public override void Write(Utf8JsonWriter writer, Enums.PowerStates? value, JsonSerializerOptions options)
+        {
+            if (value == null)
+            {
+                writer.WriteNullValue();
+                return;
+            }
+
+            switch (value)
             {
                 case Enums.PowerStates.On:
-                    writer.WriteValue("ON");
+                    writer.WriteStringValue("ON");
                     break;
 
                 case Enums.PowerStates.Off:
-                    writer.WriteValue("OFF");
+                    writer.WriteStringValue("OFF");
+                    break;
+
+                default:
+                    writer.WriteNullValue();
                     break;
             }
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            var enumString = reader.Value.ToString();
-
-            Enums.PowerStates? powerState = null;
-            switch(enumString)
-            {
-                case "ON":
-                    powerState = Enums.PowerStates.On;
-                    break;
-
-                case "OFF":
-                    powerState = Enums.PowerStates.Off;
-                    break;
-            }
-
-            return powerState;
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(string);
         }
     }
 }

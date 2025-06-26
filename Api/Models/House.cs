@@ -1,5 +1,5 @@
 ﻿using KoenZomers.Tado.Api.Entities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace KoenZomers.Tado.Api.Models
 {
@@ -8,46 +8,46 @@ namespace KoenZomers.Tado.Api.Models
     /// </summary>
     public class House
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public long Id { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("dateTimeZone")]
+        [JsonPropertyName("dateTimeZone")]
         public string DateTimeZone { get; set; }
 
-        [JsonProperty("dateCreated")]
+        [JsonPropertyName("dateCreated")]
         public DateTime DateCreated { get; set; }
 
-        [JsonProperty("temperatureUnit")]
+        [JsonPropertyName("temperatureUnit")]
         public string TemperatureUnit { get; set; }
 
-        [JsonProperty("installationCompleted")]
+        [JsonPropertyName("installationCompleted")]
         public bool InstallationCompleted { get; set; }
 
-        [JsonProperty("partner")]
+        [JsonPropertyName("partner")]
         public object Partner { get; set; }
 
-        [JsonProperty("simpleSmartScheduleEnabled")]
+        [JsonPropertyName("simpleSmartScheduleEnabled")]
         public bool SimpleSmartScheduleEnabled { get; set; }
 
-        [JsonProperty("awayRadiusInMeters")]
+        [JsonPropertyName("awayRadiusInMeters")]
         public double AwayRadiusInMeters { get; set; }
 
-        [JsonProperty("license")]
+        [JsonPropertyName("license")]
         public string License { get; set; }
 
-        [JsonProperty("christmasModeEnabled")]
+        [JsonPropertyName("christmasModeEnabled")]
         public bool ChristmasModeEnabled { get; set; }
 
-        [JsonProperty("contactDetails")]
+        [JsonPropertyName("contactDetails")]
         public ContactDetails ContactDetails { get; set; }
 
-        [JsonProperty("address")]
+        [JsonPropertyName("address")]
         public Address Address { get; set; }
 
-        [JsonProperty("geolocation")]
+        [JsonPropertyName("geolocation")]
         public Geolocation Geolocation { get; set; }
     }
 }

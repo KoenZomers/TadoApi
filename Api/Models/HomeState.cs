@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace KoenZomers.Tado.Api.Models
 {
@@ -7,7 +7,7 @@ namespace KoenZomers.Tado.Api.Models
     /// </summary>
     public class HomeState
     {
-        [JsonProperty("presence")]
+        [JsonPropertyName("presence")]
         public string Presence { get; set; }
     }
 }

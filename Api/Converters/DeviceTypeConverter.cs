@@ -1,51 +1,57 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace KoenZomers.Tado.Api.Converters
 {
     /// <summary>
     /// Converts the Tado device type returned by the Tado API to the DeviceTypes enumerator in this project
     /// </summary>
-    public class DeviceTypeConverter : JsonConverter
+    public class DeviceTypeConverter : JsonConverter<Enums.DeviceTypes?>
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override Enums.DeviceTypes? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            Enums.DeviceTypes terminationType = (Enums.DeviceTypes)value;
+            if (reader.TokenType != JsonTokenType.String)
+            {
+                return null;
+            }
 
-            switch (terminationType)
+            var enumString = reader.GetString();
+            if (string.IsNullOrEmpty(enumString))
+            {
+                return null;
+            }
+
+            return enumString switch
+            {
+                "HEATING" => Enums.DeviceTypes.Heating,
+                "HOT_WATER" => Enums.DeviceTypes.HotWater,
+                _ => null
+            };
+        }
+
+        public override void Write(Utf8JsonWriter writer, Enums.DeviceTypes? value, JsonSerializerOptions options)
+        {
+            if (value == null)
+            {
+                writer.WriteNullValue();
+                return;
+            }
+
+            switch (value)
             {
                 case Enums.DeviceTypes.Heating:
-                    writer.WriteValue("HEATING");
+                    writer.WriteStringValue("HEATING");
                     break;
 
                 case Enums.DeviceTypes.HotWater:
-                    writer.WriteValue("HOT_WATER");
+                    writer.WriteStringValue("HOT_WATER");
+                    break;
+
+                default:
+                    writer.WriteNullValue();
                     break;
             }
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            var enumString = reader.Value.ToString();
-
-            Enums.DeviceTypes? terminationType = null;
-            switch(enumString)
-            {
-                case "HEATING":
-                    terminationType = Enums.DeviceTypes.Heating;
-                    break;
-
-                case "HOT_WATER":
-                    terminationType = Enums.DeviceTypes.HotWater;
-                    break;
-            }
-
-            return terminationType;
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(string);
         }
     }
 }
