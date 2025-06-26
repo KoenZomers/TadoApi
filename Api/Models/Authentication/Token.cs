@@ -27,6 +27,12 @@ public class Token
     public DateTime? ExpiresAt => _expiresAt ??= (ExpiresIn.HasValue ? DateTime.Now.AddSeconds(ExpiresIn.Value) : null);
 
     /// <summary>
+    /// Boolean indicating whether the token is still valid based on the current time and the expiration time
+    /// </summary>
+    [JsonIgnore]
+    public bool IsValid => ExpiresAt.HasValue && ExpiresAt.Value >= DateTime.Now;
+
+    /// <summary>
     /// The token that can be used to obtain new access tokens using a refresh flow
     /// </summary>
     [JsonPropertyName("refresh_token")]

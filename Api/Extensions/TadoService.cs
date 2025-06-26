@@ -40,7 +40,7 @@ public static class PowerManagerService
         // Define the User Agent to use in the HttpClient
         var userAgent = $"{configuration.UserAgent}/{System.Reflection.Assembly.GetExecutingAssembly()?.GetName().Version?.ToString(4)}";
 
-        services.AddHttpClient(typeof(Controllers.Http).Name, client => { client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent); });
+        services.AddHttpClient("Tado", client => { client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent); });
 
         return services;
     }

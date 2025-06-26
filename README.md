@@ -3,7 +3,7 @@ This library compiled for .NET 9 will allow you to easily communicate with the T
 
 ## Version History
 
-0.5.0.0 - released June 26, 2025
+0.5.1.0 - released June 26, 2025
 
 - Upgraded to .NET 9
 - Rewrite to use Dependency Injenction

@@ -45,7 +45,7 @@ public class Http : Base
     public Http(IHttpClientFactory httpClientFactory, IOptionsMonitor<Configuration.Tado> configuration, ILoggerFactory loggerFactory) : base(loggerFactory: loggerFactory)
     {
         Configuration = configuration;
-        TadoHttpClient = httpClientFactory.CreateClient(GetType().Name);
+        TadoHttpClient = httpClientFactory.CreateClient("Tado");
         TadoHttpClient.Timeout = TimeSpan.FromSeconds(DefaultApiTimeoutSeconds);
     }
 
