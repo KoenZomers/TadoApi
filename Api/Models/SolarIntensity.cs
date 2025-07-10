@@ -17,7 +17,7 @@ public partial class SolarIntensity
     /// The percentage of solar intensity
     /// </summary>
     [JsonPropertyName("percentage")]
-    public long? Percentage { get; set; }
+    public double? Percentage { get; set; }
 
     /// <summary>
     /// The timestamp when the solar intensity was recorded

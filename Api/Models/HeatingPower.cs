@@ -17,7 +17,7 @@ public class HeatingPower
     /// The percentage of heating power being used
     /// </summary>
     [JsonPropertyName("percentage")]
-    public long? Percentage { get; set; }
+    public double? Percentage { get; set; }
 
     /// <summary>
     /// The timestamp when the heating power was recorded
