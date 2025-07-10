@@ -262,7 +262,7 @@ public class Tado(Http HttpController, IOptionsMonitor<Configuration.Tado> Confi
     /// <param name="homeId">Id of the home to query</param>
     /// <param name="zoneId">Id of the zone to query</param>
     /// <returns>The state of the zone</returns>
-    public async Task<Models.State?> GetZoneState(int homeId, short zoneId) => await GetData<Models.State>($"homes/{homeId}/state");
+    public async Task<Models.State?> GetZoneState(int homeId, short zoneId) => await GetData<Models.State>($"homes/{homeId}/zones/{zoneId}/state");
 
     /// <summary>
     /// Returns the summarized state of a zone in the home with the provided Id from the Tado API
