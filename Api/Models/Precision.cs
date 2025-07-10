@@ -11,11 +11,11 @@ public partial class Precision
     /// The precision in Celsius
     /// </summary>
     [JsonPropertyName("celsius")]
-    public long? Celsius { get; set; }
+    public double? Celsius { get; set; }
 
     /// <summary>
     /// The precision in Fahrenheit
     /// </summary>
     [JsonPropertyName("fahrenheit")]
-    public long? Fahrenheit { get; set; }
+    public double? Fahrenheit { get; set; }
 }
