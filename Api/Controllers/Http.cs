@@ -27,7 +27,7 @@ public class Http : Base
     /// <summary>
     /// HttpClient to use for network communications towards the Tado API
     /// </summary>
-    private HttpClient? TadoHttpClient;
+    private readonly HttpClient? TadoHttpClient;
 
     /// <summary>
     /// Access to the application configuration
@@ -59,6 +59,8 @@ public class Http : Base
     /// <param name="maximumRetries">If provided, in case of a non 2xx response, it will retry the call at most the amount configured through this parameter. Optional, if not provided, it will endlessly retry. If <paramref name="retryIntervalIfFailed"/> has not been set, this is being ignored.</param>
     /// <param name="token">Optional token. If provided, it will be used to authenticate the request. If omitted, it will send the request anonymously.</param>
     /// <returns>Object of type T with the parsed response</returns>
+    /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
+    /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     public async Task<T?> PostMessageGetResponse<T>(Uri uri, QueryStringBuilder queryBuilder, short? retryIntervalIfFailed = null, short? maximumRetries = null, Models.Authentication.Token? token = null)
     {
         ArgumentNullException.ThrowIfNull(uri);
@@ -86,35 +88,41 @@ public class Http : Base
             request.Content = content;
 
             retryCount++;
+            HttpResponseMessage response;
+            Stream responseContentStream;
             try
             {
-                var response = await TadoHttpClient.SendAsync(request);
-                var responseContentStream = await response.Content.ReadAsStreamAsync();
-
-                // Verify if the request was successful (response status 200-299)
-                if (!response.IsSuccessStatusCode)
-                {
-                    // Request was not successful
-                    if (!retryIntervalIfFailed.HasValue || (maximumRetries.HasValue && retryCount >= maximumRetries.Value))
-                    {
-                        // We should not retry or we have reached the maximum number of retries
-                        throw new Exceptions.RequestFailedException(uri);
-                    }
-
-                    // Pause and retry
-                    Logger.LogDebug($"Request failed with status code {response.StatusCode} for URI {uri}. Retrying in {retryIntervalIfFailed.Value} seconds...");
-                    Thread.Sleep(TimeSpan.FromSeconds(retryIntervalIfFailed.Value));
-                }
-                else
-                {
-                    // Request was successful
-                    var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
-                    return responseEntity;
-                }
+                response = await TadoHttpClient.SendAsync(request);
+                responseContentStream = await response.Content.ReadAsStreamAsync();
             }
             catch (Exception ex)
             {
                 throw new Exceptions.RequestFailedException(uri, ex);
+            }
+
+            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                // Request was throttled
+                throw new Exceptions.RequestThrottledException(uri, response);
+            }
+            else if (!response.IsSuccessStatusCode)
+            {
+                // Request was not successful
+                if (!retryIntervalIfFailed.HasValue || (maximumRetries.HasValue && retryCount >= maximumRetries.Value))
+                {
+                    // We should not retry or we have reached the maximum number of retries
+                    throw new Exceptions.RequestFailedException(uri);
+                }
+
+                // Pause and retry
+                Logger.LogDebug($"Request failed with status code {response.StatusCode} for URI {uri}. Retrying in {retryIntervalIfFailed.Value} seconds...");
+                Thread.Sleep(TimeSpan.FromSeconds(retryIntervalIfFailed.Value));
+            }
+            else
+            {
+                // Request was successful (response status 200-299)
+                var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
+                return responseEntity;
             }
         } while (true);
     }
@@ -127,6 +135,7 @@ public class Http : Base
     /// <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be NULL to indicate failure.</param>
     /// <param name="token">Optional token. If provided, it will be used to authenticate the request. If omitted, it will send the request anonymously.</param>
     /// <returns>Typed entity with the result from the webservice</returns>
+    /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     public async Task<T?> GetMessageReturnResponse<T>(Uri uri, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
     {
         ArgumentNullException.ThrowIfNull(uri);
@@ -141,24 +150,30 @@ public class Http : Base
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
         }
 
+        HttpResponseMessage response;
         try
         {
             // Request the response from the webservice
-            using var response = await TadoHttpClient.SendAsync(request);
-
-            if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
-            {
-                var responseContentStream = await response.Content.ReadAsStreamAsync();
-                var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
-                return responseEntity;
-            }
-            return default;
+            response = await TadoHttpClient.SendAsync(request);
         }
         catch (Exception ex)
         {
-            // Request was not successful. throw an exception
+            // Request was not successful, throw an exception
             throw new Exceptions.RequestFailedException(uri, ex);
         }
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            // Request was throttled
+            throw new Exceptions.RequestThrottledException(uri, response);
+        }
+        else if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
+        {
+            var responseContentStream = await response.Content.ReadAsStreamAsync();
+            var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
+            return responseEntity;
+        }
+        return default;
     }
 
     /// <summary>
@@ -171,6 +186,7 @@ public class Http : Base
     /// <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be NULL to indicate failure.</param>
     /// <param name="token">Optional token. If provided, it will be used to authenticate the request. If omitted, it will send the request anonymously.</param>
     /// <returns>Typed entity with the result from the webservice</returns>
+    /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     public async Task<T?> SendMessageReturnResponse<T>(string bodyText, HttpMethod httpMethod, Uri uri, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
     {
         ArgumentNullException.ThrowIfNull(uri);
@@ -195,24 +211,30 @@ public class Http : Base
             request.Content = content;
         }
 
+        HttpResponseMessage response;
         try
         {
             // Request the response from the webservice
-            using var response = await TadoHttpClient.SendAsync(request);
-
-            if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
-            {
-                var responseContentStream = await response.Content.ReadAsStreamAsync();
-                var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
-                return responseEntity;
-            }
-            return default;
+            response = await TadoHttpClient.SendAsync(request);
         }
         catch (Exception ex)
         {
             // Request was not successful. throw an exception
             throw new Exceptions.RequestFailedException(uri, ex);
         }
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            // Request was throttled
+            throw new Exceptions.RequestThrottledException(uri, response);
+        }
+        else if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
+        {
+            var responseContentStream = await response.Content.ReadAsStreamAsync();
+            var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
+            return responseEntity;
+        }
+        return default;
     }
 
     /// <summary>
@@ -224,6 +246,7 @@ public class Http : Base
     /// <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be false to indicate failure.</param>
     /// <param name="token">Optional token. If provided, it will be used to authenticate the request. If omitted, it will send the request anonymously.</param>
     /// <returns>Boolean indicating if the request was successful</returns>
+    /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     public async Task<bool> SendMessage(string bodyText, HttpMethod httpMethod, Uri uri, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
     {
         ArgumentNullException.ThrowIfNull(uri);
@@ -247,20 +270,27 @@ public class Http : Base
             request.Content = content;
         }
 
+        HttpResponseMessage response;
         try
         {
             // Request the response from the webservice
-            using var response = await TadoHttpClient.SendAsync(request);
-            if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
-            {
-                return true;
-            }
-            return false;
+            response = await TadoHttpClient.SendAsync(request);
         }
         catch (Exception ex)
         {
             // Request was not successful. throw an exception
             throw new Exceptions.RequestFailedException(uri, ex);
         }
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            // Request was throttled
+            throw new Exceptions.RequestThrottledException(uri, response);
+        }
+        else if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
+        {
+            return true;
+        }
+        return false;
     }
 }

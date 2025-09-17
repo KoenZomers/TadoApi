@@ -9,6 +9,10 @@ This library compiled for .NET 9 will allow you to easily communicate with the T
 
 ## Version History
 
+0.6.0.0 - released September 17, 2025
+
+- Added handling for throttling since Tado started to roll out their new throttling. More info [here](https://community.home-assistant.io/t/tado-rate-limiting-api-calls/928751). In the old code it would just return empty lists when throttled, now it will throw a specific exception which holds all the details about the thottling, such as when it will be reset and what your daily quota is based on your subscription with Tado..
+
 0.5.4.0 - released July 10, 2025
 
 - Fixed an issue with GetZoneState not working
