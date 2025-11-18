@@ -1,5 +1,5 @@
 # Tado API
-This library compiled for .NET 9 will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
+This library compiled for .NET 9 and .NET 10 will allow you to easily communicate with the Tado API and retrieve details about your Tado thermostats and zones and set their temperature.
 
 [![licence badge]][licence]
 [![Continuous Integration Build](https://github.com/KoenZomers/TadoApi/actions/workflows/cibuild.yml/badge.svg)](https://github.com/KoenZomers/UniFiApi/actions/workflows/cibuild.yml)
@@ -8,6 +8,10 @@ This library compiled for .NET 9 will allow you to easily communicate with the T
 [licence]:https://github.com/koenzomers/TadoApi/blob/master/LICENSE.md
 
 ## Version History
+0.7.0.0 - released November 18, 2025
+
+- Added library for .NET 10
+- Implemented optional cancellation token in HTTP calls to be able to cancel (long running) awaitable and retryable calls.
 
 0.6.0.0 - released September 17, 2025
 

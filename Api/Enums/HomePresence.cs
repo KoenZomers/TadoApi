@@ -1,18 +1,17 @@
-﻿namespace KoenZomers.Tado.Api.Enums
+﻿namespace KoenZomers.Tado.Api.Enums;
+
+/// <summary>
+/// Defines the possible states home presence can be in
+/// </summary>
+public enum HomePresence
 {
     /// <summary>
-    /// Defines the possible states home presence can be in
+    /// At least someone is home
     /// </summary>
-    public enum HomePresence
-    {
-        /// <summary>
-        /// At least someone is home
-        /// </summary>
-        Home,
+    Home,
         
-        /// <summary>
-        /// Everyone is away
-        /// </summary>
-        Away,
-    }
+    /// <summary>
+    /// Everyone is away
+    /// </summary>
+    Away,
 }
