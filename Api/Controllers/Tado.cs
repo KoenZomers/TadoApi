@@ -65,7 +65,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// Initiates an authentication session by requesting a device authentication url which can be used to authenticate to Tado
     /// </summary>
     /// <returns>Instance of <see cref="Models.Authentication.DeviceAuthorizationResponse"/> containing the information to perform the device authentication or NULL if unable to initiate authentication session</returns>
-    public async Task<Models.Authentication.DeviceAuthorizationResponse?> GetDeviceCodeAuthentication(CancellationToken cancellationToken)
+    public async Task<Models.Authentication.DeviceAuthorizationResponse?> GetDeviceCodeAuthentication(CancellationToken cancellationToken = default)
     {
         var queryBuilder = new Helpers.QueryStringBuilder();
         queryBuilder.Add("client_id", ClientId);
