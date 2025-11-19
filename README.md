@@ -8,7 +8,7 @@ This library compiled for .NET 9 and .NET 10 will allow you to easily communicat
 [licence]:https://github.com/koenzomers/TadoApi/blob/master/LICENSE.md
 
 ## Version History
-0.7.0.0 - released November 18, 2025
+0.7.0.0 - released November 19, 2025
 
 - Added library for .NET 10
 - Implemented optional cancellation token in HTTP calls to be able to cancel (long running) awaitable and retryable calls.
