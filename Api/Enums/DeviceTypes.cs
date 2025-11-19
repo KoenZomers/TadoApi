@@ -1,18 +1,17 @@
-﻿namespace KoenZomers.Tado.Api.Enums
+﻿namespace KoenZomers.Tado.Api.Enums;
+
+/// <summary>
+/// Defines the types of Tado devices that can be switched
+/// </summary>
+public enum DeviceTypes : short
 {
     /// <summary>
-    /// Defines the types of Tado devices that can be switched
+    /// Heating
     /// </summary>
-    public enum DeviceTypes : short
-    {
-        /// <summary>
-        /// Heating
-        /// </summary>
-        Heating,
+    Heating,
 
-        /// <summary>
-        /// Hot water
-        /// </summary>
-        HotWater
-    }
+    /// <summary>
+    /// Hot water
+    /// </summary>
+    HotWater
 }

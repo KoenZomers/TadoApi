@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -18,7 +17,7 @@ public class Http : Base
     /// <summary>
     /// Default timeout for HTTP requests in seconds
     /// </summary>
-    public short DefaultApiTimeoutSeconds => Configuration?.CurrentValue.DefaultApiTimeoutSeconds ?? 30;
+    private short DefaultApiTimeoutSeconds => _configuration?.CurrentValue.DefaultApiTimeoutSeconds ?? 30;
 
     #endregion
 
@@ -27,12 +26,12 @@ public class Http : Base
     /// <summary>
     /// HttpClient to use for network communications towards the Tado API
     /// </summary>
-    private readonly HttpClient? TadoHttpClient;
+    private readonly HttpClient? _tadoHttpClient;
 
     /// <summary>
     /// Access to the application configuration
     /// </summary>
-    private IOptionsMonitor<Configuration.Tado>? Configuration;
+    private readonly IOptionsMonitor<Configuration.Tado>? _configuration;
 
     #endregion
 
@@ -44,9 +43,9 @@ public class Http : Base
     /// <param name="loggerFactory">LoggerFactory to use to retrieve Logger instance from</param>
     public Http(IHttpClientFactory httpClientFactory, IOptionsMonitor<Configuration.Tado> configuration, ILoggerFactory loggerFactory) : base(loggerFactory: loggerFactory)
     {
-        Configuration = configuration;
-        TadoHttpClient = httpClientFactory.CreateClient("Tado");
-        TadoHttpClient.Timeout = TimeSpan.FromSeconds(DefaultApiTimeoutSeconds);
+        _configuration = configuration;
+        _tadoHttpClient = httpClientFactory.CreateClient("Tado");
+        _tadoHttpClient.Timeout = TimeSpan.FromSeconds(DefaultApiTimeoutSeconds);
     }
 
     /// <summary>
@@ -55,22 +54,29 @@ public class Http : Base
     /// <param name="queryBuilder">The querystring parameters to send in the POST body</param>
     /// <typeparam name="T">Type of object to try to parse the response JSON into</typeparam>
     /// <param name="uri">Uri of the webservice to send the message to</param>
+    /// <param name="cancellationToken">Cancellation token will be used to cancel the request and exit the retry loop.</param>
     /// <param name="retryIntervalIfFailed">If provided, in case of a non 2xx response, it will keep retrying the call. Optional, if not provided, it will not retry and throw a <see cref="Exceptions.RequestFailedException"/> Exception if it fails.</param>
     /// <param name="maximumRetries">If provided, in case of a non 2xx response, it will retry the call at most the amount configured through this parameter. Optional, if not provided, it will endlessly retry. If <paramref name="retryIntervalIfFailed"/> has not been set, this is being ignored.</param>
     /// <param name="token">Optional token. If provided, it will be used to authenticate the request. If omitted, it will send the request anonymously.</param>
     /// <returns>Object of type T with the parsed response</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
-    /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
-    public async Task<T?> PostMessageGetResponse<T>(Uri uri, QueryStringBuilder queryBuilder, short? retryIntervalIfFailed = null, short? maximumRetries = null, Models.Authentication.Token? token = null)
+    /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
+    public async Task<T?> PostMessageGetResponse<T>(Uri uri, QueryStringBuilder queryBuilder, CancellationToken cancellationToken, short? retryIntervalIfFailed = null, short? maximumRetries = null, Models.Authentication.Token? token = null)
     {
         ArgumentNullException.ThrowIfNull(uri);
-        ArgumentNullException.ThrowIfNull(TadoHttpClient);
+        ArgumentNullException.ThrowIfNull(_tadoHttpClient);
 
         var retryCount = 0;
         do
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                Logger.LogDebug("Cancellation requested, stopping retries for POST to {Uri}", uri);
+                return default;
+            }
+            
             // Request the response from the webservice
-            Logger.LogDebug($"Calling Tado API at {uri} with content: {queryBuilder.ToString()}");
+            Logger.LogDebug("Calling Tado API at {Uri} with content: {Content}", uri, queryBuilder.ToString());
 
             // Prepare the content to POST
             using var content = new StringContent(queryBuilder.ToString(), Encoding.UTF8, "application/x-www-form-urlencoded");
@@ -81,7 +87,7 @@ public class Http : Base
             // Check if we should include an Authorization Bearer token
             if (token is not null)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+                request.Headers.Authorization = new("Bearer", token.AccessToken);
             }
 
             // Set the content to send along in the message body with the request
@@ -92,8 +98,13 @@ public class Http : Base
             Stream responseContentStream;
             try
             {
-                response = await TadoHttpClient.SendAsync(request);
-                responseContentStream = await response.Content.ReadAsStreamAsync();
+                response = await _tadoHttpClient.SendAsync(request, cancellationToken);
+                responseContentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                Logger.LogDebug("{Method} for {Uri} was cancelled", nameof(PostMessageGetResponse), uri);
+                return default;
             }
             catch (Exception ex)
             {
@@ -105,10 +116,10 @@ public class Http : Base
                 // Request was throttled
                 throw new Exceptions.RequestThrottledException(uri, response);
             }
-            else if (!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 // Request was not successful
-                if (!retryIntervalIfFailed.HasValue || (maximumRetries.HasValue && retryCount >= maximumRetries.Value))
+                if (!retryIntervalIfFailed.HasValue || retryCount >= maximumRetries)
                 {
                     // We should not retry or we have reached the maximum number of retries
                     throw new Exceptions.RequestFailedException(uri);
@@ -116,12 +127,12 @@ public class Http : Base
 
                 // Pause and retry
                 Logger.LogDebug($"Request failed with status code {response.StatusCode} for URI {uri}. Retrying in {retryIntervalIfFailed.Value} seconds...");
-                Thread.Sleep(TimeSpan.FromSeconds(retryIntervalIfFailed.Value));
+                await Task.Delay(TimeSpan.FromSeconds(retryIntervalIfFailed.Value), cancellationToken);
             }
             else
             {
                 // Request was successful (response status 200-299)
-                var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
+                var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream, cancellationToken: CancellationToken.None);
                 return responseEntity;
             }
         } while (true);
@@ -132,14 +143,16 @@ public class Http : Base
     /// </summary>
     /// <typeparam name="T">Object type of the expected response</typeparam>
     /// <param name="uri">Uri of the webservice to send the message to</param>
+    /// <param name="cancellationToken">Cancellation token will be used to cancel the request.</param>
     /// <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be NULL to indicate failure.</param>
     /// <param name="token">Optional token. If provided, it will be used to authenticate the request. If omitted, it will send the request anonymously.</param>
     /// <returns>Typed entity with the result from the webservice</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
-    public async Task<T?> GetMessageReturnResponse<T>(Uri uri, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
+    /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
+    public async Task<T?> GetMessageReturnResponse<T>(Uri uri, CancellationToken cancellationToken, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
     {
         ArgumentNullException.ThrowIfNull(uri);
-        ArgumentNullException.ThrowIfNull(TadoHttpClient);
+        ArgumentNullException.ThrowIfNull(_tadoHttpClient);
 
         // Construct the request towards the webservice
         using var request = new HttpRequestMessage(HttpMethod.Get, uri);
@@ -147,14 +160,19 @@ public class Http : Base
         // Check if we should include an Authorization Bearer token
         if (token is not null)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            request.Headers.Authorization = new("Bearer", token.AccessToken);
         }
 
         HttpResponseMessage response;
         try
         {
             // Request the response from the webservice
-            response = await TadoHttpClient.SendAsync(request);
+            response = await _tadoHttpClient.SendAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            Logger.LogDebug("{Method} for {Uri} was cancelled", nameof(GetMessageReturnResponse), uri);
+            return default;
         }
         catch (Exception ex)
         {
@@ -167,10 +185,10 @@ public class Http : Base
             // Request was throttled
             throw new Exceptions.RequestThrottledException(uri, response);
         }
-        else if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
+        if (!expectedHttpStatusCode.HasValue || response.StatusCode == expectedHttpStatusCode.Value)
         {
-            var responseContentStream = await response.Content.ReadAsStreamAsync();
-            var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
+            var responseContentStream = await response.Content.ReadAsStreamAsync(CancellationToken.None);
+            var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream, cancellationToken: CancellationToken.None);
             return responseEntity;
         }
         return default;
@@ -183,14 +201,16 @@ public class Http : Base
     /// <param name="uri">Uri of the webservice to send the message to</param>
     /// <param name="bodyText">Text to send to the webservice in the body</param>
     /// <param name="httpMethod">Http Method to use to connect to the webservice</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request</param>
     /// <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be NULL to indicate failure.</param>
     /// <param name="token">Optional token. If provided, it will be used to authenticate the request. If omitted, it will send the request anonymously.</param>
     /// <returns>Typed entity with the result from the webservice</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
-    public async Task<T?> SendMessageReturnResponse<T>(string bodyText, HttpMethod httpMethod, Uri uri, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
+    /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
+    public async Task<T?> SendMessageReturnResponse<T>(string bodyText, HttpMethod httpMethod, Uri uri, CancellationToken cancellationToken, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
     {
         ArgumentNullException.ThrowIfNull(uri);
-        ArgumentNullException.ThrowIfNull(TadoHttpClient);
+        ArgumentNullException.ThrowIfNull(_tadoHttpClient);
 
         // Load the content to send in the body
         using var content = new StringContent(bodyText ?? "", Encoding.UTF8, "application/json");
@@ -201,7 +221,7 @@ public class Http : Base
         // Check if we should include an Authorization Bearer token
         if (token is not null)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            request.Headers.Authorization = new("Bearer", token.AccessToken);
         }
 
         // Check if a body to send along with the request has been provided
@@ -215,7 +235,13 @@ public class Http : Base
         try
         {
             // Request the response from the webservice
-            response = await TadoHttpClient.SendAsync(request);
+            response = await _tadoHttpClient.SendAsync(request, cancellationToken);
+
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            Logger.LogDebug("{Method} for {Uri} was cancelled", nameof(SendMessageReturnResponse), uri);
+            return default;
         }
         catch (Exception ex)
         {
@@ -228,10 +254,10 @@ public class Http : Base
             // Request was throttled
             throw new Exceptions.RequestThrottledException(uri, response);
         }
-        else if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
+        if (!expectedHttpStatusCode.HasValue || response.StatusCode == expectedHttpStatusCode.Value)
         {
-            var responseContentStream = await response.Content.ReadAsStreamAsync();
-            var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream);
+            var responseContentStream = await response.Content.ReadAsStreamAsync(CancellationToken.None);
+            var responseEntity = await JsonSerializer.DeserializeAsync<T>(responseContentStream, cancellationToken: CancellationToken.None);
             return responseEntity;
         }
         return default;
@@ -243,14 +269,16 @@ public class Http : Base
     /// <param name="uri">Uri of the webservice to send the message to</param>
     /// <param name="bodyText">Text to send to the webservice in the body</param>
     /// <param name="httpMethod">Http Method to use to connect to the webservice</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the request</param>
     /// <param name="expectedHttpStatusCode">The expected Http result status code. Optional. If provided and the webservice returns a different response, the return type will be false to indicate failure.</param>
     /// <param name="token">Optional token. If provided, it will be used to authenticate the request. If omitted, it will send the request anonymously.</param>
     /// <returns>Boolean indicating if the request was successful</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
-    public async Task<bool> SendMessage(string bodyText, HttpMethod httpMethod, Uri uri, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
+    /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
+    public async Task<bool> SendMessage(string bodyText, HttpMethod httpMethod, Uri uri, CancellationToken cancellationToken, HttpStatusCode? expectedHttpStatusCode = null, Models.Authentication.Token? token = null)
     {
         ArgumentNullException.ThrowIfNull(uri);
-        ArgumentNullException.ThrowIfNull(TadoHttpClient);
+        ArgumentNullException.ThrowIfNull(_tadoHttpClient);
 
         // Load the content to send in the body
         using var content = new StringContent(bodyText ?? "", Encoding.UTF8, "application/json");
@@ -260,7 +288,7 @@ public class Http : Base
         // Check if we should include an Authorization Bearer token
         if (token is not null)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            request.Headers.Authorization = new("Bearer", token.AccessToken);
         }
 
         // Check if a body to send along with the request has been provided
@@ -274,7 +302,12 @@ public class Http : Base
         try
         {
             // Request the response from the webservice
-            response = await TadoHttpClient.SendAsync(request);
+            response = await _tadoHttpClient.SendAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            Logger.LogDebug("{Method} for {Uri} was cancelled", nameof(SendMessage), uri);
+            return false;
         }
         catch (Exception ex)
         {
@@ -287,7 +320,7 @@ public class Http : Base
             // Request was throttled
             throw new Exceptions.RequestThrottledException(uri, response);
         }
-        else if (!expectedHttpStatusCode.HasValue || expectedHttpStatusCode.HasValue && response != null && response.StatusCode == expectedHttpStatusCode.Value)
+        if (!expectedHttpStatusCode.HasValue || response.StatusCode == expectedHttpStatusCode.Value)
         {
             return true;
         }

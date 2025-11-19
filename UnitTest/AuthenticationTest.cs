@@ -17,7 +17,7 @@ public class AuthenticationTest : BaseTest
     {
         if (Service is null) Assert.Fail("Service not available");
 
-        var authenticationRequest = await Service.GetDeviceCodeAuthentication();
+        var authenticationRequest = await Service.GetDeviceCodeAuthentication(CancellationToken.None);
 
         Assert.IsNotNull(authenticationRequest, "Failed to instantiate device authentication flow");
     }
@@ -31,13 +31,13 @@ public class AuthenticationTest : BaseTest
     {
         if (Service is null) Assert.Fail("Service not available");
 
-        var authenticationRequest = await Service.GetDeviceCodeAuthentication();
+        var authenticationRequest = await Service.GetDeviceCodeAuthentication(CancellationToken.None);
 
         Assert.IsNotNull(authenticationRequest, "Failed to instantiate device authentication flow");
 
         Debug.WriteLine($"URL for authentication: {authenticationRequest.VerificationUriComplete}");
 
-        var tokenResponse = await Service.WaitForDeviceCodeAuthenticationToComplete(authenticationRequest);
+        var tokenResponse = await Service.WaitForDeviceCodeAuthenticationToComplete(authenticationRequest, CancellationToken.None);
 
         Assert.IsNotNull(tokenResponse, "Failed to complete device authentication flow");
 
@@ -54,7 +54,7 @@ public class AuthenticationTest : BaseTest
     {
         if (Service is null) Assert.Fail("Service not available");
 
-        var tokenResponse = await Service.GetAccessTokenWithRefreshToken("xxx");
+        var tokenResponse = await Service.GetAccessTokenWithRefreshToken("xxx", CancellationToken.None);
 
         Assert.IsNotNull(tokenResponse, "Failed to retrieve access token with refresh token");
     }
@@ -68,13 +68,13 @@ public class AuthenticationTest : BaseTest
     {
         if (Service is null) Assert.Fail("Service not available");
 
-        var authenticationRequest = await Service.GetDeviceCodeAuthentication();
+        var authenticationRequest = await Service.GetDeviceCodeAuthentication(CancellationToken.None);
 
         Assert.IsNotNull(authenticationRequest, "Failed to instantiate device authentication flow");
 
         Debug.WriteLine($"URL for authentication: {authenticationRequest.VerificationUriComplete}");
 
-        var tokenResponse = await Service.WaitForDeviceCodeAuthenticationToComplete(authenticationRequest);
+        var tokenResponse = await Service.WaitForDeviceCodeAuthenticationToComplete(authenticationRequest, CancellationToken.None);
 
         Assert.IsNotNull(tokenResponse, "Failed to complete device authentication flow");
 
@@ -84,6 +84,6 @@ public class AuthenticationTest : BaseTest
 
         var me = await Service.SayHi("xxxx");
 
-        Assert.IsNotNull(me, "Failed to retrieve informtion from Tado");
+        Assert.IsNotNull(me, "Failed to retrieve information from Tado");
     }
 }
