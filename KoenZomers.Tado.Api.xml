@@ -181,9 +181,14 @@
             Boolean indicating if the current session is authenticated
             </summary>
         </member>
-        <member name="F:KoenZomers.Tado.Api.Controllers.Tado.Token">
+        <member name="F:KoenZomers.Tado.Api.Controllers.Tado._token">
             <summary>
             The current token used to authenticate against the Tado API
+            </summary>
+        </member>
+        <member name="F:KoenZomers.Tado.Api.Controllers.Tado.TokenChanged">
+            <summary>
+            Event to receive the new token when it has been refreshed
             </summary>
         </member>
         <member name="M:KoenZomers.Tado.Api.Controllers.Tado.Dispose">
@@ -1126,6 +1131,21 @@
         <member name="P:KoenZomers.Tado.Api.Models.Authentication.Token.UserId">
             <summary>
             The identifier of the user associated with the token
+            </summary>
+        </member>
+        <member name="T:KoenZomers.Tado.Api.Models.Authentication.TokenChangedEventArgs">
+            <summary>
+            EventArgs to pass the new token when it has been changed/refreshed
+            </summary>
+        </member>
+        <member name="M:KoenZomers.Tado.Api.Models.Authentication.TokenChangedEventArgs.#ctor(KoenZomers.Tado.Api.Models.Authentication.Token)">
+            <summary>
+            EventArgs to pass the new token when it has been changed/refreshed
+            </summary>
+        </member>
+        <member name="P:KoenZomers.Tado.Api.Models.Authentication.TokenChangedEventArgs.Token">
+            <summary>
+            The new token
             </summary>
         </member>
         <member name="T:KoenZomers.Tado.Api.Models.Capability">
