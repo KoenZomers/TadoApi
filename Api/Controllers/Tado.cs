@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using KoenZomers.Tado.Api.Models.Authentication;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
 
@@ -34,7 +35,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <summary>
     /// Boolean indicating if the current session is authenticated
     /// </summary>
-    public bool IsAuthenticated => Token is not null && (Token.ExpiresAt.HasValue && Token.ExpiresAt.Value > DateTime.Now || !string.IsNullOrWhiteSpace(Token.RefreshToken));
+    public bool IsAuthenticated => _token is not null && (_token.ExpiresAt.HasValue && _token.ExpiresAt.Value > DateTime.Now || !string.IsNullOrWhiteSpace(_token.RefreshToken));
 
     #endregion
 
@@ -43,10 +44,19 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <summary>
     /// The current token used to authenticate against the Tado API
     /// </summary>
-    protected Models.Authentication.Token? Token;
+    private Models.Authentication.Token? _token;
 
     #endregion
 
+    #region Events
+    
+    /// <summary>
+    /// Event to receive the new token when it has been refreshed
+    /// </summary>
+    public EventHandler<TokenChangedEventArgs>? TokenChanged;
+    
+    #endregion
+    
     #region Constructors \ Destructors
 
     /// <summary>
@@ -157,32 +167,33 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     {
         ArgumentNullException.ThrowIfNull(token);
 
-        Token = token;
+        _token = token;
+        TokenChanged?.Invoke(this, new TokenChangedEventArgs(_token));
 
         return IsAuthenticated;
     }
 
-    private async Task<Models.Authentication.Token> EnsureValidToken(CancellationToken cancellationToken)
+    private async Task EnsureValidToken(CancellationToken cancellationToken)
     {
-        if (Token is null)
+        if (_token is null)
         {
             throw new Exceptions.SessionNotAuthenticatedException();
         }
-        if (Token.ExpiresAt.HasValue && Token.ExpiresAt.Value < DateTime.Now && string.IsNullOrWhiteSpace(Token.RefreshToken))
+        if (!_token.ExpiresAt.HasValue || _token.ExpiresAt.Value >= DateTime.Now)
         {
-            throw new Exceptions.AuthenticationExpiredException();
+            return;
         }
-        if (Token.ExpiresAt.HasValue && Token.ExpiresAt.Value < DateTime.Now && !string.IsNullOrWhiteSpace(Token.RefreshToken))
+        
+        if(string.IsNullOrWhiteSpace(_token.RefreshToken))
         {
-            // Token has expired, try to refresh it
-            var refreshedToken = await GetAccessTokenWithRefreshToken(Token.RefreshToken, cancellationToken);
-            if (refreshedToken is null)
-            {
-                throw new Exceptions.AuthenticationExpiredException();
-            }
-            Token = refreshedToken;
+            throw new Exceptions.AuthenticationExpiredException("The refresh token is null or empty.");
         }
-        return Token;
+                
+        // Token has expired, try to refresh it
+        var refreshedToken = await GetAccessTokenWithRefreshToken(_token.RefreshToken, cancellationToken);
+        _token = refreshedToken ?? throw new Exceptions.AuthenticationExpiredException("Failed to refresh the authentication token.");
+            
+        TokenChanged?.Invoke(this, new(_token));
     }
 
     #endregion
@@ -378,9 +389,9 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
 
     private async Task<T?> GetData<T>(string endPoint, CancellationToken cancellationToken, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
     {
-        var token = await EnsureValidToken(cancellationToken);
+        await EnsureValidToken(cancellationToken);
 
-        var response = await httpController.GetMessageReturnResponse<T>(new(TadoApiBaseUrl, endPoint), cancellationToken, expectedStatusCode, token);
+        var response = await httpController.GetMessageReturnResponse<T>(new(TadoApiBaseUrl, endPoint), cancellationToken, expectedStatusCode, _token);
         return response;
     }
 
@@ -584,7 +595,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
             durationMode = Enums.DurationModes.UntilNextManualChange;
         }
 
-        var token = await EnsureValidToken(cancellationToken);
+        await EnsureValidToken(cancellationToken);
 
         // Define the proper command for the provided duration mode
         var overlay = new Models.Overlay
@@ -791,17 +802,17 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     
     private async Task<bool> SendMessage(string endPoint, HttpMethod httpMethod, CancellationToken cancellationToken, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent, string body = "{}")
     {
-        var token = await EnsureValidToken(cancellationToken);
+        await EnsureValidToken(cancellationToken);
 
-        var response = await httpController.SendMessage(body, httpMethod, new(TadoApiBaseUrl, endPoint), cancellationToken, expectedStatusCode, token);
+        var response = await httpController.SendMessage(body, httpMethod, new(TadoApiBaseUrl, endPoint), cancellationToken, expectedStatusCode, _token);
         return response;
     }
     
     private async Task<T?> SendMessageReturnResponse<T>(string endPoint, string body, HttpMethod httpMethod, CancellationToken cancellationToken, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
     {
-        var token = await EnsureValidToken(cancellationToken);
+        await EnsureValidToken(cancellationToken);
 
-        var response = await httpController.SendMessageReturnResponse<T>(body, httpMethod, new(TadoApiBaseUrl, endPoint), cancellationToken, expectedStatusCode, token);
+        var response = await httpController.SendMessageReturnResponse<T>(body, httpMethod, new(TadoApiBaseUrl, endPoint), cancellationToken, expectedStatusCode, _token);
         return response;
     }
 
