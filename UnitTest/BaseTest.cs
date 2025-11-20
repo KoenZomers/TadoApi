@@ -2,12 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KoenZomers.Tado.UnitTest;
+namespace KoenZomers.Tado.Api;
 
 /// <summary>
 /// Base functionality shared by all Unit Tests
 /// </summary>
-public abstract class BaseTest
+public abstract class IntegrationTestBase
 {
     /// <summary>
     /// The service provider for the application
@@ -27,7 +27,7 @@ public abstract class BaseTest
     /// <summary>
     /// Instantiate the Unit Test by creating the service provider and retrieving the service instance to be tested
     /// </summary>
-    public BaseTest()
+    protected IntegrationTestBase()
     {
         var services = new ServiceCollection();
 
