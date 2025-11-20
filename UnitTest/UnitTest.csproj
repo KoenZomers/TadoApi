@@ -5,8 +5,8 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>KoenZomers.TadoApi.UnitTest</AssemblyName>
-    <RootNamespace>KoenZomers.TadoApi.UnitTest</RootNamespace>
+    <AssemblyName>KoenZomers.Tado.Api.UnitTest</AssemblyName>
+    <RootNamespace>KoenZomers.Tado.Api</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
