@@ -44,19 +44,19 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <summary>
     /// The current token used to authenticate against the Tado API
     /// </summary>
-    private Models.Authentication.Token? _token;
+    private Token? _token;
 
     #endregion
 
     #region Events
-    
+
     /// <summary>
     /// Event to receive the new token when it has been refreshed
     /// </summary>
     public EventHandler<TokenChangedEventArgs>? TokenChanged;
-    
+
     #endregion
-    
+
     #region Constructors \ Destructors
 
     /// <summary>
@@ -81,12 +81,12 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
         queryBuilder.Add("client_id", ClientId);
         queryBuilder.Add("scope", "offline_access");
 
-        Models.Authentication.DeviceAuthorizationResponse? response;
+        DeviceAuthorizationResponse? response;
         try
         {
-            response = await httpController.PostMessageGetResponse<Models.Authentication.DeviceAuthorizationResponse>(TadoApiAuthUrl, queryBuilder, cancellationToken);
+            response = await httpController.PostMessageGetResponse<DeviceAuthorizationResponse>(TadoApiAuthUrl, queryBuilder, cancellationToken);
         }
-        catch(Exceptions.RequestFailedException e)
+        catch (Exceptions.RequestFailedException e)
         {
             Logger.LogWarning("Failed to get device code authentication from Tado API at '{Uri}'. Response: {InnerExceptionMessage}", e.Uri, e.InnerException?.Message ?? e.Message);
             return null;
@@ -101,7 +101,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <param name="deviceAuthorization">The device authorization flow session to wait for to be completed</param>
     /// <param name="cancellationToken">Optional: Cancellation token to cancel the request</param>
     /// <returns>TokenResponse containing the token to access to Tado API or NULL if it failed to complete</returns>
-    public async Task<Models.Authentication.Token?> WaitForDeviceCodeAuthenticationToComplete(Models.Authentication.DeviceAuthorizationResponse deviceAuthorization, CancellationToken cancellationToken = default)
+    public async Task<Token?> WaitForDeviceCodeAuthenticationToComplete(DeviceAuthorizationResponse deviceAuthorization, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(deviceAuthorization);
         ArgumentException.ThrowIfNullOrWhiteSpace(deviceAuthorization.DeviceCode);
@@ -111,14 +111,14 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
         queryBuilder.Add("device_code", deviceAuthorization.DeviceCode);
         queryBuilder.Add("grant_type", "urn:ietf:params:oauth:grant-type:device_code");
 
-        Models.Authentication.Token? response;
+        Token? response;
         try
         {
-            response = await httpController.PostMessageGetResponse<Models.Authentication.Token>(TadoTokenUrl,
-                                                                                                queryBuilder,
-                                                                                                cancellationToken,
-                                                                                                deviceAuthorization.Interval ?? 5,
-                                                                                                (short) (deviceAuthorization.ExpiresIn.HasValue ? deviceAuthorization.ExpiresIn.Value / deviceAuthorization.Interval ?? 5 : 60));
+            response = await httpController.PostMessageGetResponse<Token>(TadoTokenUrl,
+                                                                          queryBuilder,
+                                                                          cancellationToken,
+                                                                          deviceAuthorization.Interval ?? 5,
+                                                                          (short)(deviceAuthorization.ExpiresIn.HasValue ? deviceAuthorization.ExpiresIn.Value / deviceAuthorization.Interval ?? 5 : 60));
         }
         catch (Exceptions.RequestFailedException e)
         {
@@ -135,7 +135,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <param name="refreshToken">Refresh token</param>
     /// <param name="cancellationToken">Optional: Cancellation token to cancel the request</param>
     /// <returns>Access token or NULL if unable to retrieve an access token</returns>
-    public async Task<Models.Authentication.Token?> GetAccessTokenWithRefreshToken(string refreshToken, CancellationToken cancellationToken = default)
+    public async Task<Token?> GetAccessTokenWithRefreshToken(string refreshToken, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(refreshToken);
 
@@ -144,10 +144,10 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
         queryBuilder.Add("refresh_token", refreshToken);
         queryBuilder.Add("grant_type", "refresh_token");
 
-        Models.Authentication.Token? response;
+        Token? response;
         try
         {
-            response = await httpController.PostMessageGetResponse<Models.Authentication.Token>(TadoTokenUrl, queryBuilder, cancellationToken);
+            response = await httpController.PostMessageGetResponse<Token>(TadoTokenUrl, queryBuilder, cancellationToken);
         }
         catch (Exceptions.RequestFailedException e)
         {
@@ -163,12 +163,12 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// </summary>
     /// <param name="token">Token to use to authenticate</param>
     /// <returns>True if authentication successful, false if it failed</returns>
-    public bool Authenticate(Models.Authentication.Token token)
+    public bool Authenticate(Token token)
     {
         ArgumentNullException.ThrowIfNull(token);
 
         _token = token;
-        TokenChanged?.Invoke(this, new TokenChangedEventArgs(_token));
+        TokenChanged?.Invoke(this, new(_token));
 
         return IsAuthenticated;
     }
@@ -179,20 +179,20 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
         {
             throw new Exceptions.SessionNotAuthenticatedException();
         }
-        if (!_token.ExpiresAt.HasValue || _token.ExpiresAt.Value >= DateTime.Now)
+        if (_token.IsValid)
         {
             return;
         }
-        
-        if(string.IsNullOrWhiteSpace(_token.RefreshToken))
+
+        if (string.IsNullOrWhiteSpace(_token.RefreshToken))
         {
             throw new Exceptions.AuthenticationExpiredException("The refresh token is null or empty.");
         }
-                
+
         // Token has expired, try to refresh it
         var refreshedToken = await GetAccessTokenWithRefreshToken(_token.RefreshToken, cancellationToken);
         _token = refreshedToken ?? throw new Exceptions.AuthenticationExpiredException("Failed to refresh the authentication token.");
-            
+
         TokenChanged?.Invoke(this, new(_token));
     }
 
@@ -207,7 +207,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>Information about the current user</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.User?> GetMe(CancellationToken cancellationToken = default) => 
+    public async Task<Models.User?> GetMe(CancellationToken cancellationToken = default) =>
         await GetData<Models.User>("me", cancellationToken);
 
     /// <summary>
@@ -218,7 +218,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The configured zones</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.Zone[]?> GetZones(int homeId, CancellationToken cancellationToken = default) => 
+    public async Task<Models.Zone[]?> GetZones(int homeId, CancellationToken cancellationToken = default) =>
         await GetData<Models.Zone[]>($"homes/{homeId}/zones", cancellationToken);
 
     /// <summary>
@@ -229,7 +229,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The configured devices</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.Device[]?> GetDevices(int homeId, CancellationToken cancellationToken = default) => 
+    public async Task<Models.Device[]?> GetDevices(int homeId, CancellationToken cancellationToken = default) =>
         await GetData<Models.Device[]>($"homes/{homeId}/devices", cancellationToken);
 
     /// <summary>
@@ -261,8 +261,8 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The installations</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.Installation[]?> GetInstallations(int homeId, short mobileDeviceId, CancellationToken cancellationToken = default) => 
-        await GetData < Models.Installation[]>($"homes/{homeId}/installations", cancellationToken);
+    public async Task<Models.Installation[]?> GetInstallations(int homeId, short mobileDeviceId, CancellationToken cancellationToken = default) =>
+        await GetData<Models.Installation[]>($"homes/{homeId}/installations", cancellationToken);
 
     /// <summary>
     /// Returns the state of the home with the provided Id from the Tado API
@@ -272,7 +272,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The state of the home</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.HomeState?> GetHomeState(int homeId, CancellationToken cancellationToken = default) => 
+    public async Task<Models.HomeState?> GetHomeState(int homeId, CancellationToken cancellationToken = default) =>
         await GetData<Models.HomeState>($"homes/{homeId}/state", cancellationToken);
 
     /// <summary>
@@ -284,7 +284,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.State?> GetZoneState(int homeId, short zoneId, CancellationToken cancellationToken = default) => 
+    public async Task<Models.State?> GetZoneState(int homeId, short zoneId, CancellationToken cancellationToken = default) =>
         await GetData<Models.State>($"homes/{homeId}/zones/{zoneId}/state", cancellationToken);
 
     /// <summary>
@@ -296,7 +296,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The summarized state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.ZoneSummary?> GetSummarizedZoneState(int homeId, short zoneId, CancellationToken cancellationToken = default) => 
+    public async Task<Models.ZoneSummary?> GetSummarizedZoneState(int homeId, short zoneId, CancellationToken cancellationToken = default) =>
         await GetData<Models.ZoneSummary>($"homes/{homeId}/zones/{zoneId}/overlay", cancellationToken);
 
     /// <summary>
@@ -307,7 +307,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The current weater at the home</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.Weather?> GetWeather(int homeId, CancellationToken cancellationToken = default) => 
+    public async Task<Models.Weather?> GetWeather(int homeId, CancellationToken cancellationToken = default) =>
         await GetData<Models.Weather>($"homes/{homeId}/weather", cancellationToken);
 
     /// <summary>
@@ -341,7 +341,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The capabilities of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.Capability?> GetZoneCapabilities(int homeId, int zoneId, CancellationToken cancellationToken = default) => 
+    public async Task<Models.Capability?> GetZoneCapabilities(int homeId, int zoneId, CancellationToken cancellationToken = default) =>
         await GetData<Models.Capability>($"homes/{homeId}/zones/{zoneId}/capabilities", cancellationToken);
 
     /// <summary>
@@ -363,7 +363,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.Temperature?> GetZoneTemperatureOffset(string deviceId, CancellationToken cancellationToken = default) => 
+    public async Task<Models.Temperature?> GetZoneTemperatureOffset(string deviceId, CancellationToken cancellationToken = default) =>
         await GetData<Models.Temperature>($"devices/{deviceId}/temperatureOffset", cancellationToken);
 
     /// <summary>
@@ -374,7 +374,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.Temperature?> GetZoneTemperatureOffset(Models.Device device, CancellationToken cancellationToken = default) => 
+    public async Task<Models.Temperature?> GetZoneTemperatureOffset(Models.Device device, CancellationToken cancellationToken = default) =>
         await GetData<Models.Temperature>($"devices/{device.ShortSerialNo}/temperatureOffset", cancellationToken);
 
     /// <summary>
@@ -384,7 +384,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The zone temperature offset in Celcius and Fahrenheit</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.Temperature?> GetZoneTemperatureOffset(Models.Zone zone, CancellationToken cancellationToken = default) => 
+    public async Task<Models.Temperature?> GetZoneTemperatureOffset(Models.Zone zone, CancellationToken cancellationToken = default) =>
         await GetData<Models.Temperature>($"devices/{zone.Devices?[0].ShortSerialNo}/temperatureOffset", cancellationToken);
 
     private async Task<T?> GetData<T>(string endPoint, CancellationToken cancellationToken, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
@@ -409,7 +409,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>Boolean indicating if the request was successful</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<bool> SetOpenWindow(int homeId, int zoneId, CancellationToken cancellationToken = default) => 
+    public async Task<bool> SetOpenWindow(int homeId, int zoneId, CancellationToken cancellationToken = default) =>
         await SendMessage($"homes/{homeId}/zones/{zoneId}/state/openWindow/activate", HttpMethod.Post, cancellationToken);
 
     /// <summary>
@@ -421,7 +421,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>Boolean indicating if the request was successful</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<bool> ResetOpenWindow(int homeId, int zoneId, CancellationToken cancellationToken = default) => 
+    public async Task<bool> ResetOpenWindow(int homeId, int zoneId, CancellationToken cancellationToken = default) =>
         await SendMessage($"homes/{homeId}/zones/{zoneId}/state/openWindow", HttpMethod.Delete, cancellationToken);
 
     /// <summary>
@@ -434,7 +434,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <exception cref="ArgumentOutOfRangeException">Thrown when an invalid enum value is used</exception>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<bool> SetHomePresence(int homeId, Enums.HomePresence presence, CancellationToken cancellationToken = default) => 
+    public async Task<bool> SetHomePresence(int homeId, Enums.HomePresence presence, CancellationToken cancellationToken = default) =>
         await SendMessage($"homes/{homeId}/presenceLock", HttpMethod.Put, cancellationToken);
 
 
@@ -467,7 +467,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>Boolean indicating if the request was successful</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<bool> SayHi(string deviceId, CancellationToken cancellationToken = default) => 
+    public async Task<bool> SayHi(string deviceId, CancellationToken cancellationToken = default) =>
         await SendMessage($"devices/{deviceId}/identify", HttpMethod.Post, cancellationToken, HttpStatusCode.OK);
 
     /// <summary>
@@ -496,7 +496,10 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
     public async Task<bool> SetDeviceChildLock(string deviceId, bool enableChildLock, CancellationToken cancellationToken = default)
     {
-        var request = System.Text.Json.JsonSerializer.Serialize(new { childLockEnabled = enableChildLock });
+        var request = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            childLockEnabled = enableChildLock
+        });
         return await SendMessage($"devices/{deviceId}/childLock", HttpMethod.Put, cancellationToken, HttpStatusCode.NoContent, request);
     }
 
@@ -511,7 +514,10 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
     public async Task<bool> SetZoneTemperatureOffsetCelcius(string deviceId, double temperature, CancellationToken cancellationToken = default)
     {
-        var request = System.Text.Json.JsonSerializer.Serialize(new { celsius = temperature });
+        var request = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            celsius = temperature
+        });
         return await SendMessage($"devices/{deviceId}/temperatureOffset", HttpMethod.Put, cancellationToken, HttpStatusCode.OK, request);
     }
 
@@ -525,7 +531,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The summarized new state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.ZoneSummary?> SetHeatingTemperatureCelsius(int homeId, int zoneId, double temperature, CancellationToken cancellationToken = default) => 
+    public async Task<Models.ZoneSummary?> SetHeatingTemperatureCelsius(int homeId, int zoneId, double temperature, CancellationToken cancellationToken = default) =>
         await SetHeatingTemperatureCelcius(homeId, zoneId, temperature, Enums.DurationModes.UntilNextManualChange, null, cancellationToken);
 
     /// <summary>
@@ -539,7 +545,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The summarized new state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.ZoneSummary?> SetHeatingTemperatureCelcius(int homeId, int zoneId, double temperature, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) => 
+    public async Task<Models.ZoneSummary?> SetHeatingTemperatureCelcius(int homeId, int zoneId, double temperature, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) =>
         await SetTemperature(homeId, zoneId, temperature, null, Enums.DeviceTypes.Heating, durationMode, timer, cancellationToken);
 
     /// <summary>
@@ -553,7 +559,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The summarized new state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.ZoneSummary?> SetHotWaterTemperatureCelcius(int homeId, double temperatureCelcius, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) => 
+    public async Task<Models.ZoneSummary?> SetHotWaterTemperatureCelcius(int homeId, double temperatureCelcius, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) =>
         await SetTemperature(homeId, 0, temperatureCelcius, null, Enums.DeviceTypes.HotWater, durationMode, timer, cancellationToken).ConfigureAwait(false);
 
     /// <summary>
@@ -567,7 +573,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The summarized new state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.ZoneSummary?> SetHotWaterTemperatureFahrenheit(int homeId, double temperatureFahrenheit, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) => 
+    public async Task<Models.ZoneSummary?> SetHotWaterTemperatureFahrenheit(int homeId, double temperatureFahrenheit, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) =>
         await SetTemperature(homeId, 0, null, temperatureFahrenheit, Enums.DeviceTypes.HotWater, durationMode, timer, cancellationToken);
 
     /// <summary>
@@ -625,7 +631,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
 
         if (durationMode == Enums.DurationModes.Timer && timer.HasValue)
         {
-            overlay.Termination.DurationInSeconds = (int) timer.Value.TotalSeconds;
+            overlay.Termination.DurationInSeconds = (int)timer.Value.TotalSeconds;
         }
 
         var request = System.Text.Json.JsonSerializer.Serialize(overlay);
@@ -643,7 +649,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The summarized new state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.ZoneSummary?> SetHeatingTemperatureFahrenheit(int homeId, int zoneId, double temperature, CancellationToken cancellationToken = default) => 
+    public async Task<Models.ZoneSummary?> SetHeatingTemperatureFahrenheit(int homeId, int zoneId, double temperature, CancellationToken cancellationToken = default) =>
         await SetHeatingTemperatureFahrenheit(homeId, zoneId, temperature, Enums.DurationModes.UntilNextManualChange, null, cancellationToken);
 
     /// <summary>
@@ -658,7 +664,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The summarized new state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.ZoneSummary?> SetHeatingTemperatureFahrenheit(int homeId, int zoneId, double temperature, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) => 
+    public async Task<Models.ZoneSummary?> SetHeatingTemperatureFahrenheit(int homeId, int zoneId, double temperature, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) =>
         await SetTemperature(homeId, zoneId, null, temperature, Enums.DeviceTypes.Heating, durationMode, timer, cancellationToken);
 
     /// <summary>
@@ -697,7 +703,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <returns>The summarized new state of the zone</returns>
     /// <exception cref="Exceptions.RequestThrottledException">Thrown when the request is getting throttled</exception>
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
-    public async Task<Models.ZoneSummary?> SwitchHotWaterOff(int homeId, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) => 
+    public async Task<Models.ZoneSummary?> SwitchHotWaterOff(int homeId, Enums.DurationModes durationMode, TimeSpan? timer = null, CancellationToken cancellationToken = default) =>
         await SetTemperature(homeId, 0, null, null, Enums.DeviceTypes.HotWater, durationMode, timer, cancellationToken);
 
     /// <summary>
@@ -754,7 +760,10 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     /// <exception cref="Exceptions.RequestFailedException">Thrown when the request has failed.</exception>
     public async Task<bool> SetZoneTemperatureOffsetFahrenheit(string deviceId, double temperature, CancellationToken cancellationToken = default)
     {
-        var request = System.Text.Json.JsonSerializer.Serialize(new { fahrenheit = temperature });
+        var request = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            fahrenheit = temperature
+        });
         return await SendMessage($"devices/{deviceId}/temperatureOffset", HttpMethod.Put, cancellationToken, HttpStatusCode.OK, request);
     }
 
@@ -799,7 +808,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
 
         return await SetZoneTemperatureOffsetFahrenheit(zone.Devices[0].ShortSerialNo, temperature, cancellationToken);
     }
-    
+
     private async Task<bool> SendMessage(string endPoint, HttpMethod httpMethod, CancellationToken cancellationToken, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent, string body = "{}")
     {
         await EnsureValidToken(cancellationToken);
@@ -807,7 +816,7 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
         var response = await httpController.SendMessage(body, httpMethod, new(TadoApiBaseUrl, endPoint), cancellationToken, expectedStatusCode, _token);
         return response;
     }
-    
+
     private async Task<T?> SendMessageReturnResponse<T>(string endPoint, string body, HttpMethod httpMethod, CancellationToken cancellationToken, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
     {
         await EnsureValidToken(cancellationToken);
@@ -817,4 +826,5 @@ public class Tado(Http httpController, IOptionsMonitor<Configuration.Tado>? conf
     }
 
     #endregion
+
 }
