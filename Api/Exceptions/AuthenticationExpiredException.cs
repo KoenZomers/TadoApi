@@ -5,13 +5,13 @@
 /// </summary>
 public class AuthenticationExpiredException : Exception
 {
-    private const string defaultMessage = "The authentication has expired. You have to reauthenticate.";
+    private const string DefaultMessage = "The authentication has expired. You have to reauthenticate.";
 
-    public AuthenticationExpiredException() : base(defaultMessage)
+    public AuthenticationExpiredException(string? message) : base(message ?? DefaultMessage)
     {
     }
 
-    public AuthenticationExpiredException(Exception innerException, string message = defaultMessage) : base(message, innerException)
+    public AuthenticationExpiredException(Exception innerException, string? message) : base(message ?? DefaultMessage, innerException)
     {
     }
 }
