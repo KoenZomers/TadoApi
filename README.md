@@ -8,6 +8,10 @@ This library compiled for .NET 9 and .NET 10 will allow you to easily communicat
 [licence]:https://github.com/koenzomers/TadoApi/blob/master/LICENSE.md
 
 ## Version History
+0.7.1.0 - released June 22, 2206
+
+- Added TokenChangedEvent and fixed the refresh flow of the token [#17](https://github.com/KoenZomers/TadoApi/pull/17). Thanks [Niels Mauel](https://github.com/NMauel)!
+
 0.7.0.0 - released November 19, 2025
 
 - Added library for .NET 10
